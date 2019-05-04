@@ -6,12 +6,12 @@ fn run_imp() {
     let program = vec![mov_instruction];
     let mut vm = VirtualMachine::new(20, program);
 
-    let len = (vm
+    let len = vm
         .get_memory()
         .iter()
         .filter(|instruction| **instruction == mov_instruction)
-        .collect::<Vec<_>>())
-    .len();
+        .count();
+
     assert!(
         len == 1,
         "The VM was not initialised with exactly 1 MOV 0 1! Got {} instead",
@@ -24,12 +24,12 @@ fn run_imp() {
 
         // At this point there should be 6 MOV 0 1 (1st one + 5 copies)
         if i == 4 {
-            let len = (vm
+            let len = vm
                 .get_memory()
                 .iter()
                 .filter(|instruction| **instruction == mov_instruction)
-                .collect::<Vec<_>>())
-            .len();
+                .count();
+
             assert!(
                 len == 6,
                 "The VM was not filled with exactly 6 MOV 0 1! Got {} instead",
@@ -41,8 +41,7 @@ fn run_imp() {
     assert!(
         vm.get_memory()
             .iter()
-            .filter(|instruction| **instruction != mov_instruction)
-            .next()
+            .find(|instruction| **instruction != mov_instruction)
             == None,
         "The VM was not filled with MOV 0 1!"
     );
