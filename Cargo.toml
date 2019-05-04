@@ -1,0 +1,7 @@
+[package]
+name = "darwin_lib"
+version = "0.1.0"
+authors = ["Louis de Wardt <contact@louis.dewardt.uk>"]
+edition = "2018"
+
+[dependencies]
