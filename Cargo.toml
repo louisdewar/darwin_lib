@@ -5,3 +5,10 @@ authors = ["Louis de Wardt <contact@louis.dewardt.uk>"]
 edition = "2018"
 
 [dependencies]
+
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "simulate"
+harness = false
