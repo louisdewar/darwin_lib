@@ -4,7 +4,7 @@ pub enum InstructionType {
     MOV,
     ADD,
     DAT,
-    JMP
+    JMP,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
