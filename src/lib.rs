@@ -61,7 +61,7 @@ impl VirtualMachine {
 
     pub fn cycle(&mut self) {
         // The index of the current instruction in memory
-        let cur_index = dbg!(self.processes[dbg!(self.cur_process)]);
+        let cur_index = self.processes[self.cur_process];
 
         // Get the current instruction
         let Instruction {
@@ -82,12 +82,12 @@ impl VirtualMachine {
             // Copy instruction from source to address
             MOV => {
                 let source = self.memory[(reg_a + cur_index) % memory_len];
-                self.memory[(reg_b + cur_index) % memory_len] = dbg!(source);
+                self.memory[(reg_b + cur_index) % memory_len] = source;
             }
             ADD => unimplemented!("ADD"),
             DAT => unimplemented!("DAT"),
         }
 
-        self.cur_process = dbg!((self.cur_process + 1) % self.processes.len())
+        self.cur_process = (self.cur_process + 1) % self.processes.len()
     }
 }
