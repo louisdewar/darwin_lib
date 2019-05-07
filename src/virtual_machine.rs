@@ -1,4 +1,5 @@
-use crate::{Instruction, InstructionType};
+// use crate::{Instruction, InstructionType};
+use crate::{cmd, AddressMode, Instruction};
 
 #[derive(Debug)]
 pub struct VirtualMachine {
@@ -9,10 +10,34 @@ pub struct VirtualMachine {
     cur_process: usize,
 }
 
+#[inline]
+pub fn add_memory_addresses(max: usize, a: isize, b: isize) -> usize {
+    // If a + b is negative then the result of ((a + b) % max) will be negative so we must add max
+    // If ((a + b) % max) is 0, then + max, will result in max, therefore we need to % max again to convert back to 0
+    ((((a + b) as usize % max) + max) % max)
+}
+
+#[inline]
+pub fn find_instruction_index(
+    memory_len: usize,
+    cur_address: usize,
+    reg: isize,
+    mode: AddressMode,
+) -> usize {
+    use AddressMode::*;
+    match mode {
+        Direct => add_memory_addresses(memory_len, cur_address as isize, reg),
+        Immediate => {
+            unimplemented!("");
+        }
+    }
+}
+
 impl VirtualMachine {
     pub fn new(size: usize, program: Vec<Instruction>) -> VirtualMachine {
         let mut memory: Vec<Instruction> = (0..size)
-            .map(|_| Instruction::new(InstructionType::DAT, 0, 0))
+            .map(|_| cmd!(DAT(0, Direct, 0, Direct)))
+            // .map(|_| Instruction::new(InstructionType::DAT, 0, 0))
             .collect();
 
         // TODO: Make this random
@@ -42,32 +67,28 @@ impl VirtualMachine {
         let cur_index = self.processes[self.cur_process];
 
         // Get the current instruction
-        let Instruction {
-            instruction_type: i_type,
-            reg_a,
-            reg_b,
-        } = self.memory[cur_index];
+        let instruction = self.memory[cur_index];
 
         let memory_len = self.memory.len();
 
-        use InstructionType::*;
+        use Instruction::*;
 
         // Next time run the instruction 1 ahead of this
         self.processes[self.cur_process] = (self.processes[self.cur_process] + 1) % memory_len;
 
         // Run different code for each instruction
-        match i_type {
+        match instruction {
             // Copy instruction from source to address
-            MOV => {
-                let source = self.memory[(reg_a + cur_index) % memory_len];
-                self.memory[(reg_b + cur_index) % memory_len] = source;
+            MOV(reg_a, _mode_a, reg_b, _mode_b) => {
+                let source =
+                    self.memory[add_memory_addresses(memory_len, cur_index as isize, reg_a)];
+                self.memory[add_memory_addresses(memory_len, cur_index as isize, reg_b)] = source;
             }
-            ADD => unimplemented!("ADD"),
-            DAT => {
+            DAT(_reg_a, _mode_a, _reg_b, _mode_b) => {
                 // This should kill the current process
                 unimplemented!("DAT")
             }
-            JMP => unimplemented!("JMP"),
+            JMP(_reg_a, _mode_a) => unimplemented!("JMP"),
         }
 
         self.cur_process = (self.cur_process + 1) % self.processes.len()
