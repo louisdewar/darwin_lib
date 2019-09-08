@@ -28,6 +28,7 @@ impl std::fmt::Display for AddressMode {
 /// The type of instruction
 pub enum OpCode {
     MOV,
+    ADD,
     DAT,
     JMP,
     SPL,

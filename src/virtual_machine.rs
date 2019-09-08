@@ -19,9 +19,9 @@ impl VirtualMachine {
                     OpCode::DAT,
                     Modifier::None,
                     0,
-                    AddressMode::Direct,
+                    AddressMode::Immediate,
                     0,
-                    AddressMode::Direct,
+                    AddressMode::Immediate,
                 )
             })
             .collect();
@@ -76,14 +76,15 @@ impl VirtualMachine {
         // Run different code for each instruction
         match instruction.op_code {
             MOV => handlers::mov(instruction, pc, memory_len, &mut self.memory),
+            ADD => handlers::add(instruction, pc, memory_len, &mut self.memory),
             DAT => unimplemented!("This should kill current process"),
             JMP => {
-                let new_addr = handlers::jmp(instruction, pc, memory_len, &mut self.memory);
+                let new_addr = handlers::jmp(instruction, pc, memory_len, &self.memory);
                 // Set the program counter for this process to the new address
                 processes[*cur_process] = new_addr;
             }
             SPL => {
-                let new_addr = handlers::spl(instruction, pc, memory_len, &mut self.memory);
+                let new_addr = handlers::spl(instruction, pc, memory_len, &self.memory);
 
                 processes.push(new_addr);
             }
