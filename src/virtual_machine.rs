@@ -1,5 +1,5 @@
 // use crate::{Instruction, InstructionType};
-use crate::{AddressMode, Instruction, Modifier, OpCode, handlers};
+use crate::{handlers, AddressMode, Instruction, Modifier, OpCode};
 
 #[derive(Debug)]
 pub struct VirtualMachine {
@@ -68,12 +68,8 @@ impl VirtualMachine {
 
         // Run different code for each instruction
         match instruction.op_code {
-            MOV => {
-                handlers::mov(instruction, pc, memory_len, &mut self.memory)
-            },
-            DAT => {
-                unimplemented!("This should kill current process")
-            },
+            MOV => handlers::mov(instruction, pc, memory_len, &mut self.memory),
+            DAT => unimplemented!("This should kill current process"),
             JMP => {
                 let new_addr = handlers::jmp(instruction, pc, memory_len, &mut self.memory);
                 // Set the program counter for this process to the new address

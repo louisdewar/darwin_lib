@@ -53,7 +53,21 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    pub fn new(op_code: OpCode, modifier: Modifier, a_reg: isize, a_mode: AddressMode, b_reg: isize, b_mode: AddressMode) -> Instruction {
-        Instruction { op_code, modifier, a_reg, a_mode, b_reg, b_mode }
+    pub fn new(
+        op_code: OpCode,
+        modifier: Modifier,
+        a_reg: isize,
+        a_mode: AddressMode,
+        b_reg: isize,
+        b_mode: AddressMode,
+    ) -> Instruction {
+        Instruction {
+            op_code,
+            modifier,
+            a_reg,
+            a_mode,
+            b_reg,
+            b_mode,
+        }
     }
 }

@@ -1,4 +1,3 @@
-
 /// Creates a single instruction
 /// # Example
 /// ```
@@ -17,7 +16,14 @@ macro_rules! cmd {
     // Single parameter
     ($op_code:tt ($modifier:tt, $reg_a:expr, $mode_a:tt)) => {
         // B field is set to 0 direct
-        $crate::Instruction::new($crate::OpCode::$op_code, $crate::Modifier::$modifier, $reg_a, $crate::AddressMode::$mode_a, 0, $crate::AddressMode::Direct)
+        $crate::Instruction::new(
+            $crate::OpCode::$op_code,
+            $crate::Modifier::$modifier,
+            $reg_a,
+            $crate::AddressMode::$mode_a,
+            0,
+            $crate::AddressMode::Direct,
+        )
     };
 
     // Full command
