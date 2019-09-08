@@ -30,6 +30,7 @@ pub enum OpCode {
     MOV,
     DAT,
     JMP,
+    SPL,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

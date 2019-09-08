@@ -1,4 +1,3 @@
-// use crate::{Instruction, InstructionType};
 use crate::{handlers, AddressMode, Instruction, Modifier, OpCode};
 
 #[derive(Debug)]
@@ -81,10 +80,17 @@ impl VirtualMachine {
             JMP => {
                 let new_addr = handlers::jmp(instruction, pc, memory_len, &mut self.memory);
                 // Set the program counter for this process to the new address
-                processes[*cur_process] = new_addr
+                processes[*cur_process] = new_addr;
+            }
+            SPL => {
+                let new_addr = handlers::spl(instruction, pc, memory_len, &mut self.memory);
+
+                processes.push(new_addr);
             }
         }
 
+        // Advance the user process counter
+        *cur_process = (*cur_process + 1) % processes.len();
         // Advance the user counter
         self.cur_user = (self.cur_user + 1) % self.user_processes.len();
     }
