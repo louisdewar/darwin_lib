@@ -15,7 +15,6 @@ pub struct VirtualMachine {
 impl VirtualMachine {
     pub fn new(size: usize, program: Vec<Instruction>) -> VirtualMachine {
         let mut memory: Vec<Instruction> = (0..size)
-            // .map(|_| cmd!(DAT(0, Direct, 0, Direct)))
             .map(|_| {
                 Instruction::new(
                     OpCode::DAT,

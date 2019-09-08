@@ -11,7 +11,7 @@ fn vm_init(c: &mut Criterion) {
         "init VM over inputs",
         |b, &&size| {
             b.iter(|| {
-                let vm = VirtualMachine::new(size, vec![cmd! { MOV(0, Direct, 1, Direct) }]);
+                let vm = VirtualMachine::new(size, vec![cmd! { MOV(I, 0, Direct, 1, Direct) }]);
 
                 black_box(vm);
             });
@@ -24,7 +24,7 @@ fn vm_run(c: &mut Criterion) {
     c.bench_function_over_inputs(
         "iterations with imp",
         |b, &&iterations| {
-            let mut vm = VirtualMachine::new(10000, vec![cmd! { MOV(0, Direct, 1, Direct) }]);
+            let mut vm = VirtualMachine::new(10000, vec![cmd! { MOV(I, 0, Direct, 1, Direct) }]);
             b.iter(|| {
                 for _ in 0..iterations {
                     vm.cycle();

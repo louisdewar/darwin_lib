@@ -1,8 +1,6 @@
 pub mod handlers;
 
-// TODO: Fix the macros
-// mod macro;
-// use macro::*;
+mod util;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AddressMode {

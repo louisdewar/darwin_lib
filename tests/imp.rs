@@ -2,10 +2,12 @@ use darwin_lib::{cmd, create_program, VirtualMachine};
 
 #[test]
 fn create_imp() {
-    use darwin_lib::{AddressMode, Instruction};
+    use darwin_lib::{AddressMode, Instruction, Modifier, OpCode};
     assert_eq!(
-        create_program! { MOV(0, Direct, 1, Direct) },
-        vec!(Instruction::MOV(
+        create_program! { MOV(I, 0, Direct, 1, Direct) },
+        vec!(Instruction::new(
+            OpCode::MOV,
+            Modifier::I,
             0,
             AddressMode::Direct,
             1,
@@ -16,10 +18,10 @@ fn create_imp() {
 
 #[test]
 fn run_imp() {
-    let program = create_program! { MOV(0, Direct, 1, Direct) };
+    let program = create_program! { MOV(I, 0, Direct, 1, Direct) };
     let mut vm = VirtualMachine::new(20, program);
 
-    let mov_instruction = cmd! { MOV(0, Direct, 1, Direct) };
+    let mov_instruction = cmd! { MOV(I, 0, Direct, 1, Direct) };
 
     let len = vm
         .get_memory()
