@@ -1,72 +1,61 @@
+pub mod handlers;
+
+// TODO: Fix the macros
+// mod macro;
+// use macro::*;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AddressMode {
+    /// The number following this operand points (relatively) to the address of the value
     Direct,
+    /// The number following this operand is the value
     Immediate,
-    // TODO: Add more modes
+    /// The number following this operand points to the location where a relative pointer to the value can be found
+    Indirect,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Instruction {
-    MOV(isize, AddressMode, isize, AddressMode),
-    DAT(isize, AddressMode, isize, AddressMode),
-    JMP(isize, AddressMode),
+/// The type of instruction
+pub enum OpCode {
+    MOV,
+    DAT,
+    JMP,
 }
 
-/// Creates a single instruction
-/// # Example
-/// ```
-/// use darwin_lib::{ cmd, Instruction, AddressMode };
-/// // MOV instruction
-/// assert_eq!(cmd! { MOV(0, Direct, 1, Direct) }, Instruction::MOV(0, AddressMode::Direct, 1, AddressMode::Direct));
-///
-/// // DAT instruction
-/// assert_eq!(cmd! { DAT(0, Direct, 1, Direct) }, Instruction::DAT(0, AddressMode::Direct, 1, AddressMode::Direct));
-///
-/// // JMP instruction
-/// assert_eq!(cmd! { JMP(0, Direct) }, Instruction::JMP(0, AddressMode::Direct));
-/// ```
-#[macro_export]
-macro_rules! cmd {
-    // Single parameter
-    ($op_code:tt ($reg_a:expr, $mode_a:tt)) => {
-        $crate::Instruction::$op_code($reg_a, $crate::AddressMode::$mode_a)
-    };
-
-    // Full command
-    ($op_code:tt ($reg_a:expr, $mode_a:tt, $reg_b:expr, $mode_b:tt)) => {
-        $crate::Instruction::$op_code(
-            $reg_a,
-            $crate::AddressMode::$mode_a,
-            $reg_b,
-            $crate::AddressMode::$mode_b,
-        )
-    };
+#[derive(Debug, Clone, Copy, PartialEq)]
+/// The modifier of an instruction
+pub enum Modifier {
+    None,
+    A,
+    B,
+    AB,
+    BA,
+    F,
+    X,
+    I,
 }
 
-/// Creates a vector of instructions
-/// # Example
-/// ```
-/// use darwin_lib::{ create_program, Instruction, AddressMode };
-/// assert_eq!(
-///    create_program! {
-///        MOV(0, Direct, 1, Direct)
-///        JMP(-1, Direct)
-///        DAT(0, Direct, 4, Direct)
-///    },
-///    vec![
-///        Instruction::MOV(0, AddressMode::Direct, 1, AddressMode::Direct),
-///        Instruction::JMP(-1, AddressMode::Direct),
-///        Instruction::DAT(0, AddressMode::Direct, 4, AddressMode::Direct),
-///    ]
-/// );
-/// ```
-#[macro_export]
-macro_rules! create_program {
-    // { $( $op_code:tt $reg_a:tt $mode_a:tt $reg_b:tt $mode_b:tt ),* } => {
-    { $( $op_code:tt ($($args:tt)*) )* } => {
-        // vec![$( $crate::cmd!($op_code ($($args)*))),*]
-        vec![
-            $($crate::cmd!($op_code( $($args)* )), )*
-        ]
-    };
+#[derive(Debug, Clone, Copy, PartialEq)]
+/// The structure representing a sinlge instruction at a point in memory
+pub struct Instruction {
+    /// The op code (the type of instruction)
+    pub op_code: OpCode,
+    /// The modifier of the instruction
+    pub modifier: Modifier,
+
+    /// The value of the a register
+    pub a_reg: isize,
+    /// The address mode of the a register
+    pub a_mode: AddressMode,
+
+    /// The value of the b register
+    pub b_reg: isize,
+    /// The address mode of the b register
+    pub b_mode: AddressMode,
+}
+
+impl Instruction {
+    pub fn new(op_code: OpCode, modifier: Modifier, a_reg: isize, a_mode: AddressMode, b_reg: isize, b_mode: AddressMode) -> Instruction {
+        Instruction { op_code, modifier, a_reg, a_mode, b_reg, b_mode }
+    }
 }
