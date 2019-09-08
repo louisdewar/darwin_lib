@@ -1,4 +1,5 @@
 pub mod handlers;
+pub use handlers::relative_address;
 
 mod util;
 
@@ -10,6 +11,17 @@ pub enum AddressMode {
     Immediate,
     /// The number following this operand points to the location where a relative pointer to the value can be found
     Indirect,
+}
+
+impl std::fmt::Display for AddressMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use AddressMode::*;
+        match self {
+            Direct => write!(f, "$"),
+            Immediate => write!(f, "#"),
+            Indirect => write!(f, "@"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -50,6 +62,31 @@ pub struct Instruction {
     pub b_reg: isize,
     /// The address mode of the b register
     pub b_mode: AddressMode,
+}
+
+impl std::fmt::Display for Instruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.modifier == Modifier::None {
+            write!(
+                f,
+                "{:?}    {}{} {}{}",
+                self.op_code, self.a_mode, self.a_reg, self.b_mode, self.b_reg
+            )
+        } else {
+            let modifier = format!("{:?}", self.modifier);
+            write!(
+                f,
+                "{:?}.{}{} {}{} {}{}",
+                self.op_code,
+                modifier,
+                if modifier.len() == 1 { " " } else { "" },
+                self.a_mode,
+                self.a_reg,
+                self.b_mode,
+                self.b_reg
+            )
+        }
+    }
 }
 
 impl Instruction {

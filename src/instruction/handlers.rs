@@ -1,7 +1,7 @@
 use crate::{AddressMode, Instruction, Modifier};
 
 #[inline]
-fn relative_address(max: usize, a: usize, b: isize) -> usize {
+pub fn relative_address(max: usize, a: usize, b: isize) -> usize {
     let max = max as isize;
     let a = a as isize;
     // If a + b is negative then the result of ((a + b) % max) will be negative so we must add max

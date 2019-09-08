@@ -7,7 +7,7 @@ pub struct VirtualMachine {
     /// Each element in this vector represents all the processes for a particular user
     /// The index of the current user process is the first element in the tuple
     /// The list of processes (the index where each process is at in memory) is the second element.
-    processes: Vec<(usize, Vec<usize>)>,
+    user_processes: Vec<(usize, Vec<usize>)>,
     /// The id of the user whose process should run next
     cur_user: usize,
 }
@@ -40,7 +40,7 @@ impl VirtualMachine {
         VirtualMachine {
             memory,
             cur_user: 0,
-            processes: vec![(0, vec![random_i])],
+            user_processes: vec![(0, vec![random_i])],
         }
     }
 
@@ -48,10 +48,18 @@ impl VirtualMachine {
         &self.memory
     }
 
+    pub fn get_user_processes(&self) -> &Vec<(usize, Vec<usize>)> {
+        &self.user_processes
+    }
+
+    pub fn get_cur_user(&self) -> usize {
+        self.cur_user
+    }
+
     /// Runs one iteration of the virtual machine
     pub fn cycle(&mut self) {
         // The index of the current instruction in memory
-        let (cur_process, processes) = &mut self.processes[self.cur_user];
+        let (cur_process, processes) = &mut self.user_processes[self.cur_user];
 
         // Get the program counter
         let pc = processes[*cur_process];
@@ -78,6 +86,6 @@ impl VirtualMachine {
         }
 
         // Advance the user counter
-        self.cur_user = (self.cur_user + 1) % self.processes.len();
+        self.cur_user = (self.cur_user + 1) % self.user_processes.len();
     }
 }
