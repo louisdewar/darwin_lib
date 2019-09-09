@@ -9,8 +9,12 @@ pub enum AddressMode {
     Direct,
     /// The number following this operand is the value
     Immediate,
-    /// The number following this operand points to the location where a relative pointer to the value can be found
-    Indirect,
+    /// The number following this operand points to the location where a relative pointer to the
+    /// value can be found in the A-register
+    IndirectA,
+    /// The number following this operand points to the location where a relative pointer to the
+    /// value can be found in the B-register
+    IndirectB,
 }
 
 impl std::fmt::Display for AddressMode {
@@ -19,7 +23,8 @@ impl std::fmt::Display for AddressMode {
         match self {
             Direct => write!(f, "$"),
             Immediate => write!(f, "#"),
-            Indirect => write!(f, "@"),
+            IndirectA => write!(f, "*"),
+            IndirectB => write!(f, "@"),
         }
     }
 }
