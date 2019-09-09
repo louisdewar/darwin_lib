@@ -63,7 +63,9 @@ impl VirtualMachine {
 
         // Get the program counter (the index of the current instruction in memory)
         // from the front of the PC queue
-        let pc = process_queue.pop_front().expect("All user processes have been killed"); // TODO: Better handling of end of users processes
+        let pc = process_queue
+            .pop_front()
+            .expect("All user processes have been killed"); // TODO: Better handling of end of users processes
 
         // Get the current instruction
         let instruction = self.memory[pc];
