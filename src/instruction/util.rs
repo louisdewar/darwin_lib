@@ -58,9 +58,7 @@ macro_rules! cmd {
 /// ```
 #[macro_export]
 macro_rules! create_program {
-    // { $( $op_code:tt $reg_a:tt $mode_a:tt $reg_b:tt $mode_b:tt ),* } => {
     { $( $op_code:tt ($($args:tt)*) )* } => {
-        // vec![$( $crate::cmd!($op_code ($($args)*))),*]
         vec![
             $($crate::cmd!($op_code( $($args)* )), )*
         ]
