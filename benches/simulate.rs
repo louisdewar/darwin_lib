@@ -4,14 +4,17 @@ extern crate criterion;
 use criterion::black_box;
 use criterion::Criterion;
 
-use darwin_lib::{cmd, VirtualMachine};
+use darwin_lib::{create_program, VirtualMachine};
 
 fn vm_init(c: &mut Criterion) {
     c.bench_function_over_inputs(
         "init VM over inputs",
         |b, &&size| {
             b.iter(|| {
-                let vm = VirtualMachine::new(size, vec![cmd! { MOV(I, 0, Direct, 1, Direct) }]);
+                let vm = VirtualMachine::new(
+                    size,
+                    vec![create_program! { MOV(I, 0, Direct, 1, Direct) }],
+                );
 
                 black_box(vm);
             });
@@ -24,7 +27,10 @@ fn vm_run(c: &mut Criterion) {
     c.bench_function_over_inputs(
         "iterations with imp",
         |b, &&iterations| {
-            let mut vm = VirtualMachine::new(10000, vec![cmd! { MOV(I, 0, Direct, 1, Direct) }]);
+            let mut vm = VirtualMachine::new(
+                10000,
+                vec![create_program! { MOV(I, 0, Direct, 1, Direct) }],
+            );
             b.iter(|| {
                 for _ in 0..iterations {
                     vm.cycle();
