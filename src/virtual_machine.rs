@@ -13,7 +13,7 @@ pub struct VirtualMachine {
 }
 
 impl VirtualMachine {
-    pub fn new(size: usize, program: Vec<Instruction>) -> VirtualMachine {
+    pub fn new(size: usize, programs: Vec<Vec<Instruction>>) -> VirtualMachine {
         let mut memory: Vec<Instruction> = (0..size)
             .map(|_| {
                 Instruction::new(
@@ -27,20 +27,45 @@ impl VirtualMachine {
             })
             .collect();
 
-        // TODO: Make this random
-        let random_i = 5;
+        let program_lengths: Vec<usize> = programs.iter().map(|v| v.len()).collect();
+        let total_program_length: usize = program_lengths.iter().sum();
 
-        for (m_instruction, p_instruction) in memory[random_i..(random_i + program.len())]
-            .iter_mut()
-            .zip(program.iter())
-        {
-            *m_instruction = *p_instruction
+        let mut budget: usize = size.checked_sub(total_program_length + 10 * programs.len())
+            .expect("Total program length plus padding is greater than memory length");
+
+        use rand::Rng;
+
+        let mut rng = rand::thread_rng();
+
+        let mut indices = vec!();
+
+        let mut cur_index = 0;
+
+        for (i, program) in programs.iter().enumerate() {
+            indices.push(cur_index);
+
+            for (instruction_i, instruction) in program.iter().enumerate() {
+                memory[(cur_index + instruction_i) % size] = *instruction
+            }
+
+
+            // mean of a shared amount of the *remaining* (hence -i) budget
+            // if there were two programs there would be 3 gaps hence programs.len() + 1
+            let mean = budget as f64 / (programs.len() - i) as f64;
+
+            let tenth_budget = budget as f64 * 0.1;
+
+            // Generate a number in range ±10% of the budget around the mean
+            let n: usize = rng.gen_range((mean - tenth_budget) as usize, (mean + tenth_budget) as usize);
+            // Find the start index of the next, including 10 padding and extra random padding
+            cur_index = cur_index + program.len() + 10 + n;
+            budget -= program.len() + 10 + n;
         }
 
         VirtualMachine {
             memory,
             cur_user: 0,
-            users_pcs: vec![VecDeque::from(vec![random_i])],
+            users_pcs: (0..programs.len()).map(|i| VecDeque::from(vec![indices[i]])).collect(),
         }
     }
 
