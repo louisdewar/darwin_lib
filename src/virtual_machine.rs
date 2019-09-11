@@ -12,8 +12,49 @@ pub struct VirtualMachine {
     cur_user: usize,
 }
 
+// Export this into a function to make it easier to implement more insertion strategies in the future
+fn generate_random_insertion_points(size: usize, programs: &[Vec<Instruction>]) -> Vec<usize> {
+    let program_lengths: Vec<usize> = programs.iter().map(|v| v.len()).collect();
+    let total_program_length: usize = program_lengths.iter().sum();
+
+    let default_padding = 10;
+
+    let mut budget: usize = size
+        .checked_sub(total_program_length + default_padding * programs.len())
+        .expect("Total program length plus padding is greater than memory length");
+
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+
+    // First program is inserted at 0
+    let mut indices = vec![0];
+    let mut cur_index = program_lengths[0] + default_padding;
+
+    for (i, program_len) in program_lengths.iter().enumerate().skip(1) {
+        // Mean of a shared amount of the *remaining* (hence -i) budget
+        // note: if there were two programs there would be 3 gaps
+        let mean = budget as f64 / (programs.len() + 1 - i) as f64;
+
+        let tenth_budget = budget as f64 * 0.1;
+
+        // Generate a number in range ±10% of the budget around the mean
+        let n: usize = rng.gen_range(
+            (mean - tenth_budget) as usize,
+            (mean + tenth_budget) as usize,
+        );
+
+        // Find the start index, including default padding and extra random padding
+        cur_index = cur_index + program_len + default_padding + n;
+        budget -= program_len + default_padding + n;
+
+        indices.push(cur_index);
+    }
+
+    indices
+}
+
 impl VirtualMachine {
-    pub fn new(size: usize, program: Vec<Instruction>) -> VirtualMachine {
+    pub fn new(size: usize, programs: Vec<Vec<Instruction>>) -> VirtualMachine {
         let mut memory: Vec<Instruction> = (0..size)
             .map(|_| {
                 Instruction::new(
@@ -27,20 +68,20 @@ impl VirtualMachine {
             })
             .collect();
 
-        // TODO: Make this random
-        let random_i = 5;
+        let indices = generate_random_insertion_points(size, &programs);
 
-        for (m_instruction, p_instruction) in memory[random_i..(random_i + program.len())]
-            .iter_mut()
-            .zip(program.iter())
-        {
-            *m_instruction = *p_instruction
+        for (start_index, program) in indices.iter().zip(programs.iter()) {
+            for (instruction_i, instruction) in program.iter().enumerate() {
+                memory[(start_index + instruction_i) % size] = *instruction
+            }
         }
 
         VirtualMachine {
             memory,
             cur_user: 0,
-            users_pcs: vec![VecDeque::from(vec![random_i])],
+            users_pcs: (0..programs.len())
+                .map(|i| VecDeque::from(vec![indices[i]]))
+                .collect(),
         }
     }
 

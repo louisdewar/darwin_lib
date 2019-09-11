@@ -3,7 +3,7 @@ use darwin_lib::{cmd, create_program, VirtualMachine};
 fn main() {
     let program = create_program! { MOV(I, 0, Direct, 1, Direct) };
 
-    let mut vm = VirtualMachine::new(20, program);
+    let mut vm = VirtualMachine::new(20, vec![program]);
 
     vm.cycle();
     vm.cycle();
