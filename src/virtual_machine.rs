@@ -123,6 +123,10 @@ impl VirtualMachine {
         match instruction.op_code {
             MOV => handlers::mov(instruction, pc, memory_len, &mut self.memory),
             ADD => handlers::add(instruction, pc, memory_len, &mut self.memory),
+            SUB => handlers::sub(instruction, pc, memory_len, &mut self.memory),
+            MUL => handlers::mul(instruction, pc, memory_len, &mut self.memory),
+            DIV => handlers::div(instruction, pc, memory_len, &mut self.memory),
+            MOD => handlers::modulo(instruction, pc, memory_len, &mut self.memory),
             DAT => {
                 // Remove the last queued process (kill it)
                 process_queue.pop_back().unwrap();
