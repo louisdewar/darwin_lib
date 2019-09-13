@@ -22,7 +22,6 @@ pub fn jmz(
 ) -> Option<usize> {
     use Modifier as m;
 
-    // We completely ignore the modifier and the b mode
     let Instruction {
         a_reg,
         a_mode,
@@ -56,7 +55,6 @@ pub fn jmn(
 ) -> Option<usize> {
     use Modifier as m;
 
-    // We completely ignore the modifier and the b mode
     let Instruction {
         a_reg,
         a_mode,
@@ -73,7 +71,7 @@ pub fn jmn(
     if match modifier {
         m::A | m::BA => memory[test_index].a_reg != 0,
         m::B | m::AB => memory[test_index].b_reg != 0,
-        m::F | m::X | m::I => memory[test_index].a_reg != 0 && memory[test_index].b_reg != 0,
+        m::F | m::X | m::I => memory[test_index].a_reg != 0 || memory[test_index].b_reg != 0,
         m::None => panic!("Invalid modifier `None` for JMN"),
     } {
         Some(follow_address(a_reg, a_mode, cur_address, max, memory))
@@ -90,7 +88,6 @@ pub fn djn(
 ) -> Option<usize> {
     use Modifier as m;
 
-    // We completely ignore the modifier and the b mode
     let Instruction {
         a_reg,
         a_mode,
@@ -134,7 +131,6 @@ pub fn seq(
 ) -> bool {
     use Modifier as m;
 
-    // We completely ignore the modifier and the b mode
     let Instruction {
         a_reg,
         a_mode,

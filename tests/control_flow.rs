@@ -348,24 +348,24 @@ fn jmn() {
 
     test_jmp(
         create_program! {
-            JMN(F, 3, Direct, 1, Direct) // Shouldn't jump
+            JMN(F, 3, Direct, 1, Direct) // Should jump
             DAT(None, 0, Direct, 1, Direct)
         },
-        1,
+        3,
     );
     test_jmp(
         create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
+            JMN(X, 3, Direct, 1, Direct) // Should jump
             DAT(None, 0, Direct, 1, Direct)
         },
-        1,
+        3,
     );
     test_jmp(
         create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
+            JMN(X, 3, Direct, 1, Direct) // Should jump
             DAT(None, 0, Direct, 1, Direct)
         },
-        1,
+        3,
     );
 
     test_jmp(
@@ -392,24 +392,24 @@ fn jmn() {
 
     test_jmp(
         create_program! {
-            JMN(F, 3, Direct, 1, Direct) // Shouldn't jump
+            JMN(F, 3, Direct, 1, Direct) // Should jump
             DAT(None, 1, Direct, 0, Direct)
         },
-        1,
+        3,
     );
     test_jmp(
         create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
+            JMN(X, 3, Direct, 1, Direct) // Should jump
             DAT(None, 1, Direct, 0, Direct)
         },
-        1,
+        3,
     );
     test_jmp(
         create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
+            JMN(X, 3, Direct, 1, Direct) // Should jump
             DAT(None, 1, Direct, 0, Direct)
         },
-        1,
+        3,
     );
 }
 
