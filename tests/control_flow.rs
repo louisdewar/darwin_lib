@@ -414,6 +414,18 @@ fn jmn() {
 }
 
 #[test]
+#[should_panic]
+fn invalid_djn() {
+    // None is not a valid modifier
+    test_jmp(
+        create_program! {
+            DJN(None, 3, Direct, 0, Direct)
+        },
+        3,
+    );
+}
+
+#[test]
 fn djn() {
     use std::collections::VecDeque;
 

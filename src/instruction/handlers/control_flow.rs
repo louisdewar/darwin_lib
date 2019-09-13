@@ -118,7 +118,7 @@ pub fn djn(
             memory[test_index].b_reg -= 1;
             memory[test_index].a_reg != 0 && memory[test_index].b_reg != 0
         }
-        m::None => panic!("Invalid modifier `None` for JMN"),
+        m::None => panic!("Invalid modifier `None` for DJN"),
     } {
         Some(follow_address(a_reg, a_mode, cur_address, max, memory))
     } else {
