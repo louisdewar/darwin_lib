@@ -160,6 +160,11 @@ impl VirtualMachine {
                     process_queue.push_back(new_addr);
                 }
             }
+            SEQ => {
+                if handlers::seq(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) += 1
+                }
+            }
             // Does nothing
             NOP => {}
         }

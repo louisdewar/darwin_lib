@@ -41,6 +41,7 @@ pub enum OpCode {
     JMN,
     NOP,
     DJN,
+    SEQ,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
