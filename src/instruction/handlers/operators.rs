@@ -2,6 +2,44 @@ use crate::{Instruction, Modifier};
 
 use super::follow_address;
 
+/// Performs an arithmetic operation between two memory locations
+#[macro_export]
+macro_rules! perform_operation {
+    ($modifier:expr, $mem_source:expr, $mem_destination:expr, $max:expr, $op:tt) => {
+        match $modifier {
+            Modifier::A => {
+                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.a_reg;
+                $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
+            },
+            Modifier::B => {
+                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.b_reg;
+                $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
+            },
+            // This is the default implementation
+            Modifier::AB | Modifier::None => {
+                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.a_reg;
+                $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
+            },
+            Modifier::BA => {
+                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.b_reg;
+                $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
+            },
+            Modifier::X => {
+                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.b_reg;
+                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.a_reg;
+                $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
+                $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
+            },
+            Modifier::F | Modifier::I => {
+                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.a_reg;
+                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.b_reg;
+                $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
+                $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
+            }
+        }
+    }
+}
+
 /// Helper function that returns the source and destination addresses as a tuple
 fn get_source_destination(
     instruction: Instruction,
@@ -22,48 +60,6 @@ fn get_source_destination(
     (source, destination)
 }
 
-fn perform_operation(
-    modifier: Modifier,
-    mem_source: Instruction,
-    mem_destination: &mut Instruction,
-    max: isize,
-    operation: Box<dyn Fn(isize, isize) -> isize>,
-) {
-    use Modifier as m;
-
-    match modifier {
-        m::A => {
-            mem_destination.a_reg = (operation)(mem_source.a_reg, mem_destination.a_reg);
-            mem_destination.a_reg = (mem_destination.a_reg + max) % max;
-        }
-        m::B => {
-            mem_destination.b_reg = (operation)(mem_source.b_reg, mem_destination.b_reg);
-            mem_destination.b_reg = (mem_destination.b_reg + max) % max;
-        }
-        // This is the default implementation
-        m::AB | m::None => {
-            mem_destination.b_reg = (operation)(mem_source.a_reg, mem_destination.b_reg);
-            mem_destination.b_reg = (mem_destination.b_reg + max) % max;
-        }
-        m::BA => {
-            mem_destination.a_reg = (operation)(mem_source.b_reg, mem_destination.a_reg);
-            mem_destination.a_reg = (mem_destination.a_reg + max) % max;
-        }
-        m::X => {
-            mem_destination.a_reg = (operation)(mem_source.b_reg, mem_destination.a_reg);
-            mem_destination.b_reg = (operation)(mem_source.a_reg, mem_destination.b_reg);
-            mem_destination.a_reg = (mem_destination.a_reg + max) % max;
-            mem_destination.b_reg = (mem_destination.b_reg + max) % max;
-        }
-        m::F | m::I => {
-            mem_destination.a_reg = (operation)(mem_source.a_reg, mem_destination.a_reg);
-            mem_destination.b_reg = (operation)(mem_source.b_reg, mem_destination.b_reg);
-            mem_destination.a_reg = (mem_destination.a_reg + max) % max;
-            mem_destination.b_reg = (mem_destination.b_reg + max) % max;
-        }
-    }
-}
-
 pub fn add(
     instruction: Instruction,
     cur_address: usize,
@@ -71,12 +67,12 @@ pub fn add(
     memory: &mut Vec<Instruction>,
 ) {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
-    perform_operation(
+    perform_operation!(
         instruction.modifier,
         memory[source],
         &mut memory[destination],
         max as isize,
-        Box::new(|s, d| d + s),
+        +
     );
 }
 
@@ -87,12 +83,12 @@ pub fn sub(
     memory: &mut Vec<Instruction>,
 ) {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
-    perform_operation(
+    perform_operation!(
         instruction.modifier,
         memory[source],
         &mut memory[destination],
         max as isize,
-        Box::new(|s, d| d - s),
+        -
     );
 }
 
@@ -104,12 +100,12 @@ pub fn mul(
 ) {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
 
-    perform_operation(
+    perform_operation!(
         instruction.modifier,
         memory[source],
         &mut memory[destination],
         max as isize,
-        Box::new(|s, d| d * s),
+        *
     );
 }
 
@@ -121,12 +117,12 @@ pub fn div(
 ) {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
 
-    perform_operation(
+    perform_operation!(
         instruction.modifier,
         memory[source],
         &mut memory[destination],
         max as isize,
-        Box::new(|s, d| d / s),
+        /
     );
 }
 
@@ -138,11 +134,11 @@ pub fn modulo(
 ) {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
 
-    perform_operation(
+    perform_operation!(
         instruction.modifier,
         memory[source],
         &mut memory[destination],
         max as isize,
-        Box::new(|s, d| d % s),
+        %
     );
 }
