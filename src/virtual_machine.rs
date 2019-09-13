@@ -132,6 +132,11 @@ impl VirtualMachine {
                 // Override the program counter for this process to the new address
                 *(process_queue.back_mut().unwrap()) = new_addr;
             }
+            JMZ => {
+                if let Some(new_addr) = handlers::jmz(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) = new_addr;
+                }
+            }
             SPL => {
                 let new_addr = handlers::spl(instruction, pc, memory_len, &self.memory);
 
