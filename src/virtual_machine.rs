@@ -84,7 +84,7 @@ impl VirtualMachine {
             users_pcs: (0..programs.len())
                 .map(|i| VecDeque::from(vec![indices[i]]))
                 .collect(),
-            max_processes: 8000
+            max_processes: 8000,
         }
     }
 
@@ -142,6 +142,12 @@ impl VirtualMachine {
             }
             JMN => {
                 if let Some(new_addr) = handlers::jmn(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) = new_addr;
+                }
+            }
+            DJN => {
+                if let Some(new_addr) = handlers::djn(instruction, pc, memory_len, &mut self.memory)
+                {
                     *(process_queue.back_mut().unwrap()) = new_addr;
                 }
             }

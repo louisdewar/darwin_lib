@@ -1,4 +1,4 @@
-use darwin_lib::{create_program, Instruction, VirtualMachine};
+use darwin_lib::{cmd, create_program, Instruction, VirtualMachine};
 
 fn test_jmp(program: Vec<Instruction>, expected_location: usize) {
     use std::collections::VecDeque;
@@ -15,17 +15,17 @@ fn test_jmp(program: Vec<Instruction>, expected_location: usize) {
 
 #[test]
 fn spl() {
-    let mut vm = VirtualMachine::new(20, vec![create_program! {
-        SPL(None, 1, Direct, 0, Direct)
-        JMP(None, -1, Direct, 0, Direct)
-    }]);
+    let mut vm = VirtualMachine::new(
+        20,
+        vec![create_program! {
+            SPL(None, 1, Direct, 0, Direct)
+            JMP(None, -1, Direct, 0, Direct)
+        }],
+    );
 
     vm.cycle();
 
-    assert_eq!(
-        vm.get_users_pcs()[0].len(),
-        2,
-    );
+    assert_eq!(vm.get_users_pcs()[0].len(), 2,);
 
     // 16189 was found to be the time at which point there should be 8000 processes
     // 16500 should allow more SPL command to be executed so that if there are more than 8000 processes
@@ -34,10 +34,7 @@ fn spl() {
         vm.cycle();
     }
 
-    assert_eq!(
-        vm.get_users_pcs()[0].len(),
-        8000,
-    );
+    assert_eq!(vm.get_users_pcs()[0].len(), 8000,);
 }
 
 #[test]
@@ -413,5 +410,100 @@ fn jmn() {
             DAT(None, 1, Direct, 0, Direct)
         },
         1,
+    );
+}
+
+#[test]
+fn djn() {
+    use std::collections::VecDeque;
+
+    fn test_djn(program: Vec<Instruction>, expected_2: Instruction, expected_3: Instruction) {
+        let mut vm = VirtualMachine::new(20, vec![program]);
+
+        for _ in 0..8 {
+            vm.cycle();
+        }
+
+        assert_eq!(vm.get_users_pcs(), &[VecDeque::from(vec![2])]);
+
+        assert_eq!(vm.get_memory()[2], expected_2);
+
+        assert_eq!(vm.get_memory()[3], expected_3);
+    }
+
+    // Modifier: A, AB
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(A, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 0, Direct, 4, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+    );
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(BA, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 0, Direct, 4, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+    );
+
+    // Modifier: B, BA
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(B, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+    );
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(AB, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+    );
+
+    // Modifier: F, X, I
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(F, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 0, Direct, 0, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+    );
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(X, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 0, Direct, 0, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
+    );
+    test_djn(
+        create_program! {
+            ADD(A, 1, Immediate, 3, Direct)
+            DJN(I, -1, Direct, 1, Direct)
+            DAT(None, 4, Direct, 4, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        cmd! { DAT(None, 0, Direct, 0, Direct) },
+        cmd! { DAT(None, 4, Direct, 0, Direct) },
     );
 }
