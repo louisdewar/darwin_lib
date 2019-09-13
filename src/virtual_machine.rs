@@ -137,6 +137,11 @@ impl VirtualMachine {
                     *(process_queue.back_mut().unwrap()) = new_addr;
                 }
             }
+            JMN => {
+                if let Some(new_addr) = handlers::jmn(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) = new_addr;
+                }
+            }
             SPL => {
                 let new_addr = handlers::spl(instruction, pc, memory_len, &self.memory);
 

@@ -38,6 +38,7 @@ pub enum OpCode {
     JMP,
     SPL,
     JMZ,
+    JMN,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
