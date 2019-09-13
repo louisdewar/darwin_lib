@@ -165,6 +165,16 @@ impl VirtualMachine {
                     *(process_queue.back_mut().unwrap()) += 1
                 }
             }
+            SNE => {
+                if handlers::sne(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) += 1
+                }
+            }
+            SLT => {
+                if handlers::slt(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) += 1
+                }
+            }
             // Does nothing
             NOP => {}
         }

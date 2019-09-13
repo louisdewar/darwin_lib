@@ -156,6 +156,69 @@ pub fn seq(
     }
 }
 
+pub fn sne(
+    instruction: Instruction,
+    cur_address: usize,
+    max: usize,
+    memory: &[Instruction],
+) -> bool {
+    use Modifier as m;
+
+    let Instruction {
+        a_reg,
+        a_mode,
+        b_reg,
+        b_mode,
+        modifier,
+        ..
+    } = instruction;
+
+    // The indices of the registers to checked_sub
+    let a_index = follow_address(a_reg, a_mode, cur_address, max, memory);
+    let b_index = follow_address(b_reg, b_mode, cur_address, max, memory);
+
+    // Match arm will return true if it should skip (false otherwise)
+    match modifier {
+        m::A | m::BA => memory[a_index].a_reg != memory[b_index].a_reg,
+        m::B | m::AB => memory[a_index].b_reg != memory[b_index].b_reg,
+        m::F | m::X | m::I => {
+            memory[a_index].a_reg != memory[b_index].a_reg
+                || memory[a_index].b_reg != memory[b_index].b_reg
+        }
+        m::None => panic!("Invalid modifier `None` for SNE"),
+    }
+}
+
+pub fn slt(
+    instruction: Instruction,
+    cur_address: usize,
+    max: usize,
+    memory: &[Instruction],
+) -> bool {
+    use Modifier as m;
+
+    let Instruction {
+        a_reg,
+        a_mode,
+        b_reg,
+        b_mode,
+        modifier,
+        ..
+    } = instruction;
+
+    // The indices of the registers to checked_sub
+    let a_index = follow_address(a_reg, a_mode, cur_address, max, memory);
+    let b_index = follow_address(b_reg, b_mode, cur_address, max, memory);
+
+    // Match arm will return true if it should skip (false otherwise)
+    match modifier {
+        m::A | m::BA => memory[a_index].a_reg < memory[b_index].a_reg,
+        m::B | m::AB => memory[a_index].b_reg < memory[b_index].b_reg,
+        m::F | m::X | m::I => panic!("Invalid modifier `F`, `X` or `I` for SLT"),
+        m::None => panic!("Invalid modifier `None` for SLT"),
+    }
+}
+
 pub fn spl(
     instruction: Instruction,
     cur_address: usize,
