@@ -154,6 +154,8 @@ impl VirtualMachine {
                     process_queue.push_back(new_addr);
                 }
             }
+            // Does nothing
+            NOP => {}
         }
 
         // Advance the user counter
