@@ -8,31 +8,31 @@ macro_rules! perform_operation {
     ($modifier:expr, $mem_source:expr, $mem_destination:expr, $max:expr, $op:tt) => {
         match $modifier {
             Modifier::A => {
-                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.a_reg;
+                $mem_destination.a_reg $op $mem_source.a_reg;
                 $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
             },
             Modifier::B => {
-                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.b_reg;
+                $mem_destination.b_reg $op $mem_source.b_reg;
                 $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
             },
             // This is the default implementation
             Modifier::AB | Modifier::None => {
-                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.a_reg;
+                $mem_destination.b_reg $op $mem_source.a_reg;
                 $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
             },
             Modifier::BA => {
-                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.b_reg;
+                $mem_destination.a_reg $op $mem_source.b_reg;
                 $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
             },
             Modifier::X => {
-                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.b_reg;
-                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.a_reg;
+                $mem_destination.a_reg $op $mem_source.b_reg;
+                $mem_destination.b_reg $op $mem_source.a_reg;
                 $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
                 $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
             },
             Modifier::F | Modifier::I => {
-                $mem_destination.a_reg = $mem_destination.a_reg $op $mem_source.a_reg;
-                $mem_destination.b_reg = $mem_destination.b_reg $op $mem_source.b_reg;
+                $mem_destination.a_reg $op $mem_source.a_reg;
+                $mem_destination.b_reg $op $mem_source.b_reg;
                 $mem_destination.a_reg = ($mem_destination.a_reg + $max) % $max;
                 $mem_destination.b_reg = ($mem_destination.b_reg + $max) % $max;
             }
@@ -72,7 +72,7 @@ pub fn add(
         memory[source],
         &mut memory[destination],
         max as isize,
-        +
+        +=
     );
 }
 
@@ -88,7 +88,7 @@ pub fn sub(
         memory[source],
         &mut memory[destination],
         max as isize,
-        -
+        -=
     );
 }
 
@@ -105,7 +105,7 @@ pub fn mul(
         memory[source],
         &mut memory[destination],
         max as isize,
-        *
+        *=
     );
 }
 
@@ -122,7 +122,7 @@ pub fn div(
         memory[source],
         &mut memory[destination],
         max as isize,
-        /
+        /=
     );
 }
 
@@ -139,6 +139,6 @@ pub fn modulo(
         memory[source],
         &mut memory[destination],
         max as isize,
-        %
+        %=
     );
 }
