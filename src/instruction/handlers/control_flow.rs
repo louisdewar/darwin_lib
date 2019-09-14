@@ -71,7 +71,8 @@ pub fn jmn(
     if match modifier {
         m::A | m::BA => memory[test_index].a_reg != 0,
         m::B | m::AB => memory[test_index].b_reg != 0,
-        m::F | m::X | m::I => memory[test_index].a_reg != 0 || memory[test_index].b_reg != 0,
+        // Both have to be non-zero
+        m::F | m::X | m::I => memory[test_index].a_reg != 0 && memory[test_index].b_reg != 0,
         m::None => panic!("Invalid modifier `None` for JMN"),
     } {
         Some(follow_address(a_reg, a_mode, cur_address, max, memory))
@@ -113,6 +114,7 @@ pub fn djn(
         m::F | m::X | m::I => {
             memory[test_index].a_reg -= 1;
             memory[test_index].b_reg -= 1;
+            // Both have to be non-zero
             memory[test_index].a_reg != 0 && memory[test_index].b_reg != 0
         }
         m::None => panic!("Invalid modifier `None` for DJN"),
@@ -150,9 +152,16 @@ pub fn seq(
         m::BA => memory[a_index].b_reg == memory[b_index].a_reg,
         m::B => memory[a_index].b_reg == memory[b_index].b_reg,
         m::AB => memory[a_index].a_reg == memory[b_index].b_reg,
-        m::F | m::X | m::I => {
+        m::F => {
             memory[a_index].a_reg == memory[b_index].a_reg
                 && memory[a_index].b_reg == memory[b_index].b_reg
+        }
+        // Test if the whole instruction equals one another
+        m::I => memory[a_index] == memory[b_index],
+        // A==B, B==A
+        m::X => {
+            memory[a_index].a_reg == memory[b_index].b_reg
+                && memory[a_index].b_reg == memory[b_index].a_reg
         }
         m::None => panic!("Invalid modifier `None` for SEQ"),
     }
@@ -185,9 +194,14 @@ pub fn sne(
         m::BA => memory[a_index].b_reg != memory[b_index].a_reg,
         m::B => memory[a_index].b_reg != memory[b_index].b_reg,
         m::AB => memory[a_index].a_reg != memory[b_index].b_reg,
-        m::F | m::X | m::I => {
+        m::F => {
             memory[a_index].a_reg != memory[b_index].a_reg
                 || memory[a_index].b_reg != memory[b_index].b_reg
+        }
+        m::I => memory[a_index] != memory[b_index],
+        m::X => {
+            memory[a_index].a_reg != memory[b_index].b_reg
+                || memory[a_index].b_reg != memory[b_index].a_reg
         }
         m::None => panic!("Invalid modifier `None` for SNE"),
     }
@@ -217,10 +231,18 @@ pub fn slt(
     // Match arm will return true if it should skip (false otherwise)
     match modifier {
         m::A => memory[a_index].a_reg < memory[b_index].a_reg,
-        m::BA => memory[a_index].b_reg < memory[b_index].a_reg,
         m::B => memory[a_index].b_reg < memory[b_index].b_reg,
         m::AB => memory[a_index].a_reg < memory[b_index].b_reg,
-        m::F | m::X | m::I => panic!("Invalid modifier `F`, `X` or `I` for SLT"),
+        m::BA => memory[a_index].b_reg < memory[b_index].a_reg,
+        m::F => {
+            memory[a_index].a_reg < memory[b_index].a_reg
+                && memory[a_index].b_reg < memory[b_index].b_reg
+        }
+        m::X => {
+            memory[a_index].a_reg < memory[b_index].b_reg
+                && memory[a_index].b_reg < memory[b_index].a_reg
+        }
+        m::I => panic!("Invalid modifier `I` for SLT"),
         m::None => panic!("Invalid modifier `None` for SLT"),
     }
 }
