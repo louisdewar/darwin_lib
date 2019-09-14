@@ -10,6 +10,8 @@ pub struct VirtualMachine {
     users_pcs: Vec<VecDeque<usize>>,
     /// The id of the user whose process should run next
     cur_user: usize,
+    /// The maximum number of processes for a particular user
+    max_processes: usize,
 }
 
 // Export this into a function to make it easier to implement more insertion strategies in the future
@@ -82,6 +84,8 @@ impl VirtualMachine {
             users_pcs: (0..programs.len())
                 .map(|i| VecDeque::from(vec![indices[i]]))
                 .collect(),
+            // TODO: In future this will be a parameter of the new method
+            max_processes: 8000,
         }
     }
 
@@ -132,12 +136,48 @@ impl VirtualMachine {
                 // Override the program counter for this process to the new address
                 *(process_queue.back_mut().unwrap()) = new_addr;
             }
-            SPL => {
-                let new_addr = handlers::spl(instruction, pc, memory_len, &self.memory);
-
-                // Queue an additional process
-                process_queue.push_back(new_addr);
+            JMZ => {
+                if let Some(new_addr) = handlers::jmz(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) = new_addr;
+                }
             }
+            JMN => {
+                if let Some(new_addr) = handlers::jmn(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) = new_addr;
+                }
+            }
+            DJN => {
+                if let Some(new_addr) = handlers::djn(instruction, pc, memory_len, &mut self.memory)
+                {
+                    *(process_queue.back_mut().unwrap()) = new_addr;
+                }
+            }
+            SPL => {
+                // If max processes is reached then this command behaves like NOP
+                if process_queue.len() < self.max_processes {
+                    let new_addr = handlers::spl(instruction, pc, memory_len, &self.memory);
+
+                    // Queue an additional process
+                    process_queue.push_back(new_addr);
+                }
+            }
+            SEQ => {
+                if handlers::seq(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) += 1
+                }
+            }
+            SNE => {
+                if handlers::sne(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) += 1
+                }
+            }
+            SLT => {
+                if handlers::slt(instruction, pc, memory_len, &self.memory) {
+                    *(process_queue.back_mut().unwrap()) += 1
+                }
+            }
+            // Does nothing
+            NOP => {}
         }
 
         // Advance the user counter
