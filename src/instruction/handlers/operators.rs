@@ -2,7 +2,8 @@ use crate::{Instruction, Modifier};
 
 use super::follow_address;
 
-/// Performs an arithmetic operation between two memory locations
+/// Performs an arithmetic operation between two memory locations. Should not be used if operation
+/// can result in division by zero.
 #[macro_export]
 macro_rules! perform_operation {
     ($modifier:expr, $mem_source:expr, $mem_destination:expr, $max:expr, $op:tt) => {
@@ -114,16 +115,73 @@ pub fn div(
     cur_address: usize,
     max: usize,
     memory: &mut Vec<Instruction>,
-) {
+) -> Result<(), ()> {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
-
-    perform_operation!(
-        instruction.modifier,
-        memory[source],
-        &mut memory[destination],
-        max as isize,
-        /=
-    );
+    use Modifier as m;
+    match instruction.modifier {
+        m::A => {
+            let result = memory[destination].a_reg.checked_div(memory[source].a_reg);
+            match result {
+                Some(t) => { memory[destination].a_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::B => {
+            let result = memory[destination].b_reg.checked_div(memory[source].b_reg);
+            match result {
+                Some(t) => { memory[destination].b_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::AB | m::None => {
+            let result = memory[destination].b_reg.checked_div(memory[source].a_reg);
+            match result {
+                Some(t) => { memory[destination].b_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::BA => {
+            let result = memory[destination].a_reg.checked_div(memory[source].b_reg);
+            match result {
+                Some(t) => { memory[destination].a_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::X => {
+            let result1 = memory[destination].b_reg.checked_div(memory[source].a_reg);
+            let result2 = memory[destination].a_reg.checked_div(memory[source].b_reg);
+            match result1 {
+                Some(t) => { memory[destination].b_reg = t; },
+                None => {}
+            };
+            match result2 {
+                Some(t) => { memory[destination].a_reg = t; },
+                None => {}
+            };
+            if result1 == None || result2 == None {
+                Err(())
+            } else {
+                Ok(())
+            }
+        },
+        m::F | m::I => {
+            let result1 = memory[destination].a_reg.checked_div(memory[source].a_reg);
+            let result2 = memory[destination].b_reg.checked_div(memory[source].b_reg);
+            match result1 {
+                Some(t) => { memory[destination].a_reg = t; },
+                None => {}
+            };
+            match result2 {
+                Some(t) => { memory[destination].b_reg = t; },
+                None => {}
+            };
+            if result1 == None || result2 == None {
+                Err(())
+            } else {
+                Ok(())
+            }
+        }
+    }
 }
 
 pub fn modulo(
@@ -131,14 +189,71 @@ pub fn modulo(
     cur_address: usize,
     max: usize,
     memory: &mut Vec<Instruction>,
-) {
+) -> Result<(), ()> {
     let (source, destination) = get_source_destination(instruction, cur_address, max, memory);
-
-    perform_operation!(
-        instruction.modifier,
-        memory[source],
-        &mut memory[destination],
-        max as isize,
-        %=
-    );
+    use Modifier as m;
+    match instruction.modifier {
+        m::A => {
+            let result = memory[destination].a_reg.checked_rem(memory[source].a_reg);
+            match result {
+                Some(t) => { memory[destination].a_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::B => {
+            let result = memory[destination].b_reg.checked_rem(memory[source].b_reg);
+            match result {
+                Some(t) => { memory[destination].b_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::AB | m::None => {
+            let result = memory[destination].b_reg.checked_rem(memory[source].a_reg);
+            match result {
+                Some(t) => { memory[destination].b_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::BA => {
+            let result = memory[destination].a_reg.checked_rem(memory[source].b_reg);
+            match result {
+                Some(t) => { memory[destination].a_reg = t; Ok(()) },
+                None => Err(())
+            }
+        },
+        m::X => {
+            let result1 = memory[destination].b_reg.checked_rem(memory[source].a_reg);
+            let result2 = memory[destination].a_reg.checked_rem(memory[source].b_reg);
+            match result1 {
+                Some(t) => { memory[destination].b_reg = t; },
+                None => {}
+            };
+            match result2 {
+                Some(t) => { memory[destination].a_reg = t; },
+                None => {}
+            };
+            if result1 == None || result2 == None {
+                Err(())
+            } else {
+                Ok(())
+            }
+        },
+        m::F | m::I => {
+            let result1 = memory[destination].a_reg.checked_rem(memory[source].a_reg);
+            let result2 = memory[destination].b_reg.checked_rem(memory[source].b_reg);
+            match result1 {
+                Some(t) => { memory[destination].a_reg = t; },
+                None => {}
+            };
+            match result2 {
+                Some(t) => { memory[destination].b_reg = t; },
+                None => {}
+            };
+            if result1 == None || result2 == None {
+                Err(())
+            } else {
+                Ok(())
+            }
+        }
+    }
 }
