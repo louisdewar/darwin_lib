@@ -122,40 +122,56 @@ pub fn div(
         m::A => {
             let result = memory[destination].a_reg.checked_div(memory[source].a_reg);
             match result {
-                Some(t) => { memory[destination].a_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::B => {
             let result = memory[destination].b_reg.checked_div(memory[source].b_reg);
             match result {
-                Some(t) => { memory[destination].b_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::AB | m::None => {
             let result = memory[destination].b_reg.checked_div(memory[source].a_reg);
             match result {
-                Some(t) => { memory[destination].b_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::BA => {
             let result = memory[destination].a_reg.checked_div(memory[source].b_reg);
             match result {
-                Some(t) => { memory[destination].a_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::X => {
             let result1 = memory[destination].b_reg.checked_div(memory[source].a_reg);
             let result2 = memory[destination].a_reg.checked_div(memory[source].b_reg);
             match result1 {
-                Some(t) => { memory[destination].b_reg = t; },
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                }
                 None => {}
             };
             match result2 {
-                Some(t) => { memory[destination].a_reg = t; },
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                }
                 None => {}
             };
             if result1 == None || result2 == None {
@@ -163,16 +179,20 @@ pub fn div(
             } else {
                 Ok(())
             }
-        },
+        }
         m::F | m::I => {
             let result1 = memory[destination].a_reg.checked_div(memory[source].a_reg);
             let result2 = memory[destination].b_reg.checked_div(memory[source].b_reg);
             match result1 {
-                Some(t) => { memory[destination].a_reg = t; },
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                }
                 None => {}
             };
             match result2 {
-                Some(t) => { memory[destination].b_reg = t; },
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                }
                 None => {}
             };
             if result1 == None || result2 == None {
@@ -196,40 +216,56 @@ pub fn modulo(
         m::A => {
             let result = memory[destination].a_reg.checked_rem(memory[source].a_reg);
             match result {
-                Some(t) => { memory[destination].a_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::B => {
             let result = memory[destination].b_reg.checked_rem(memory[source].b_reg);
             match result {
-                Some(t) => { memory[destination].b_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::AB | m::None => {
             let result = memory[destination].b_reg.checked_rem(memory[source].a_reg);
             match result {
-                Some(t) => { memory[destination].b_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::BA => {
             let result = memory[destination].a_reg.checked_rem(memory[source].b_reg);
             match result {
-                Some(t) => { memory[destination].a_reg = t; Ok(()) },
-                None => Err(())
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                    Ok(())
+                }
+                None => Err(()),
             }
-        },
+        }
         m::X => {
             let result1 = memory[destination].b_reg.checked_rem(memory[source].a_reg);
             let result2 = memory[destination].a_reg.checked_rem(memory[source].b_reg);
             match result1 {
-                Some(t) => { memory[destination].b_reg = t; },
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                }
                 None => {}
             };
             match result2 {
-                Some(t) => { memory[destination].a_reg = t; },
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                }
                 None => {}
             };
             if result1 == None || result2 == None {
@@ -237,16 +273,20 @@ pub fn modulo(
             } else {
                 Ok(())
             }
-        },
+        }
         m::F | m::I => {
             let result1 = memory[destination].a_reg.checked_rem(memory[source].a_reg);
             let result2 = memory[destination].b_reg.checked_rem(memory[source].b_reg);
             match result1 {
-                Some(t) => { memory[destination].a_reg = t; },
+                Some(t) => {
+                    memory[destination].a_reg = t;
+                }
                 None => {}
             };
             match result2 {
-                Some(t) => { memory[destination].b_reg = t; },
+                Some(t) => {
+                    memory[destination].b_reg = t;
+                }
                 None => {}
             };
             if result1 == None || result2 == None {
