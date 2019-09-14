@@ -140,7 +140,7 @@ pub fn seq(
         ..
     } = instruction;
 
-    // The indices of the registers to checked_sub
+    // The indices of the registers to check
     let a_index = follow_address(a_reg, a_mode, cur_address, max, memory);
     let b_index = follow_address(b_reg, b_mode, cur_address, max, memory);
 
@@ -175,7 +175,7 @@ pub fn sne(
         ..
     } = instruction;
 
-    // The indices of the registers to checked_sub
+    // The indices of the registers to check
     let a_index = follow_address(a_reg, a_mode, cur_address, max, memory);
     let b_index = follow_address(b_reg, b_mode, cur_address, max, memory);
 
@@ -210,7 +210,7 @@ pub fn slt(
         ..
     } = instruction;
 
-    // The indices of the registers to checked_sub
+    // The indices of the registers to check
     let a_index = follow_address(a_reg, a_mode, cur_address, max, memory);
     let b_index = follow_address(b_reg, b_mode, cur_address, max, memory);
 
