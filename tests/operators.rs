@@ -1,13 +1,10 @@
-use darwin_lib::{VirtualMachine, Instruction, create_program, cmd};
+use darwin_lib::{cmd, create_program, Instruction, VirtualMachine};
 
 fn test_operation(program: Vec<Instruction>, result_mem_location: usize, result: Instruction) {
     let mut vm = VirtualMachine::new(20, vec![program]);
     vm.cycle();
 
-    assert_eq!(
-        vm.get_memory()[result_mem_location],
-        result
-    )
+    assert_eq!(vm.get_memory()[result_mem_location], result)
 }
 
 #[test]
@@ -20,7 +17,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 3, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 3, Immediate, 1, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -30,7 +27,7 @@ fn test_add() {
             DAT(None, 15, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 1, Immediate) },
     );
     // Modifier: B
     test_operation(
@@ -40,7 +37,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 2, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -50,7 +47,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 15, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 10, Immediate) },
     );
     // Modifier: AB
     test_operation(
@@ -60,7 +57,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 4, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 4, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -70,7 +67,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 15, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 10, Immediate) },
     );
     // Modifier: BA
     test_operation(
@@ -80,7 +77,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 3, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 3, Immediate, 1, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -90,7 +87,7 @@ fn test_add() {
             DAT(None, 15, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 1, Immediate) },
     );
     // Modifier: X
     test_operation(
@@ -100,7 +97,7 @@ fn test_add() {
             DAT(None, 3, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 5, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 5, Immediate, 3, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -110,7 +107,7 @@ fn test_add() {
             DAT(None, 17, Immediate, 16, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 12, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 12, Immediate, 10, Immediate) },
     );
     // Modifier: F
     test_operation(
@@ -120,7 +117,7 @@ fn test_add() {
             DAT(None, 1, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 4, Immediate, 6, Immediate) }
+        cmd! { DAT(None, 4, Immediate, 6, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -130,7 +127,7 @@ fn test_add() {
             DAT(None, 15, Immediate, 15, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 10, Immediate) },
     );
     // Modifier: I
     test_operation(
@@ -140,7 +137,7 @@ fn test_add() {
             DAT(None, 1, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 4, Immediate, 6, Immediate) }
+        cmd! { DAT(None, 4, Immediate, 6, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -150,7 +147,7 @@ fn test_add() {
             DAT(None, 15, Immediate, 15, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 10, Immediate) },
     );
     // Modifier: None
     test_operation(
@@ -160,7 +157,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 4, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 4, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -170,7 +167,7 @@ fn test_add() {
             DAT(None, 2, Immediate, 15, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 10, Immediate) },
     );
 }
 
@@ -184,7 +181,7 @@ fn test_sub() {
             DAT(None, 4, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 3, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 3, Immediate, 1, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -194,7 +191,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 17, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 17, Immediate, 1, Immediate) },
     );
     // Modifier: B
     test_operation(
@@ -204,7 +201,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 1, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -214,7 +211,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 17, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 17, Immediate) },
     );
     // Modifier: AB
     test_operation(
@@ -224,7 +221,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 1, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -234,7 +231,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 17, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 17, Immediate) },
     );
     // Modifier: BA
     test_operation(
@@ -244,7 +241,7 @@ fn test_sub() {
             DAT(None, 2, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 1, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -254,7 +251,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 17, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 17, Immediate, 1, Immediate) },
     );
     // Modifier: X
     test_operation(
@@ -264,7 +261,7 @@ fn test_sub() {
             DAT(None, 3, Immediate, 4, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 3, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -274,7 +271,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 18, Immediate, 17, Immediate) }
+        cmd! { DAT(None, 18, Immediate, 17, Immediate) },
     );
     // Modifier: F
     test_operation(
@@ -284,7 +281,7 @@ fn test_sub() {
             DAT(None, 3, Immediate, 4, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 3, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -294,7 +291,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 17, Immediate, 18, Immediate) }
+        cmd! { DAT(None, 17, Immediate, 18, Immediate) },
     );
     // Modifier: I
     test_operation(
@@ -304,7 +301,7 @@ fn test_sub() {
             DAT(None, 3, Immediate, 4, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 3, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -314,7 +311,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 17, Immediate, 18, Immediate) }
+        cmd! { DAT(None, 17, Immediate, 18, Immediate) },
     );
     // Modifier: None
     test_operation(
@@ -324,7 +321,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 1, Immediate) },
     );
     // Resulting number negative
     test_operation(
@@ -334,7 +331,7 @@ fn test_sub() {
             DAT(None, 1, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 17, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 17, Immediate) },
     );
 }
 
@@ -348,7 +345,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 6, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 6, Immediate, 2, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -358,7 +355,7 @@ fn test_mul() {
             DAT(None, 6, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 2, Immediate) },
     );
     // Modifier: B
     test_operation(
@@ -368,7 +365,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 3, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 6, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 6, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -378,7 +375,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 6, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 10, Immediate) },
     );
     // Modifier: AB
     test_operation(
@@ -388,7 +385,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 6, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 6, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -398,7 +395,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 6, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 10, Immediate) },
     );
     // Modifier: BA
     test_operation(
@@ -408,7 +405,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 6, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 6, Immediate, 2, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -418,7 +415,7 @@ fn test_mul() {
             DAT(None, 6, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 2, Immediate) },
     );
     // Modifier: X
     test_operation(
@@ -428,7 +425,7 @@ fn test_mul() {
             DAT(None, 4, Immediate, 3, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 12, Immediate, 6, Immediate) }
+        cmd! { DAT(None, 12, Immediate, 6, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -438,7 +435,7 @@ fn test_mul() {
             DAT(None, 5, Immediate, 5, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 10, Immediate) },
     );
     // Modifier: F
     test_operation(
@@ -448,7 +445,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 6, Immediate, 8, Immediate) }
+        cmd! { DAT(None, 6, Immediate, 8, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -458,7 +455,7 @@ fn test_mul() {
             DAT(None, 6, Immediate, 6, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 10, Immediate) },
     );
     // Modifier: I
     test_operation(
@@ -468,7 +465,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 6, Immediate, 8, Immediate) }
+        cmd! { DAT(None, 6, Immediate, 8, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -478,7 +475,7 @@ fn test_mul() {
             DAT(None, 6, Immediate, 6, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 10, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 10, Immediate, 10, Immediate) },
     );
     // Modifier: None
     test_operation(
@@ -488,7 +485,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 2, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 6, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 6, Immediate) },
     );
     // Resulting number greater than memory size
     test_operation(
@@ -498,7 +495,7 @@ fn test_mul() {
             DAT(None, 2, Immediate, 5, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 10, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 10, Immediate) },
     );
 }
 
@@ -512,7 +509,7 @@ fn test_div() {
             DAT(None, 10, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 3, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 3, Immediate, 1, Immediate) },
     );
     // Modifier: A
     test_operation(
@@ -522,7 +519,7 @@ fn test_div() {
             DAT(None, 10, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 1, Immediate) },
     );
     // Modifier: B
     test_operation(
@@ -532,7 +529,7 @@ fn test_div() {
             DAT(None, 1, Immediate, 10, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 2, Immediate) },
     );
     // Modifier: AB
     test_operation(
@@ -542,7 +539,7 @@ fn test_div() {
             DAT(None, 1, Immediate, 10, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 2, Immediate) },
     );
     // Modifier: BA
     test_operation(
@@ -552,7 +549,7 @@ fn test_div() {
             DAT(None, 10, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 1, Immediate) },
     );
     // Modifier: X
     test_operation(
@@ -562,7 +559,7 @@ fn test_div() {
             DAT(None, 10, Immediate, 9, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 3, Immediate) },
     );
     // Modifier: F
     test_operation(
@@ -572,7 +569,7 @@ fn test_div() {
             DAT(None, 10, Immediate, 9, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 3, Immediate) },
     );
     // Modifier: I
     test_operation(
@@ -582,7 +579,7 @@ fn test_div() {
             DAT(None, 10, Immediate, 9, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 3, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 3, Immediate) },
     );
     // Modifier: None
     test_operation(
@@ -592,7 +589,7 @@ fn test_div() {
             DAT(None, 1, Immediate, 10, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 2, Immediate) },
     );
 }
 
@@ -600,25 +597,20 @@ fn test_div() {
 fn div_by_zero() {
     let mut vm = VirtualMachine::new(
         20,
-        vec![
-            create_program!(
-                DIV(F, 1, Direct, 2, Direct)
-                DAT(None, 0, Immediate, 2, Immediate)
-                DAT(None, 1, Immediate, 10, Immediate)
-            )
-        ]
+        vec![create_program!(
+            DIV(F, 1, Direct, 2, Direct)
+            DAT(None, 0, Immediate, 2, Immediate)
+            DAT(None, 1, Immediate, 10, Immediate)
+        )],
     );
     vm.cycle();
     // Valid b_reg division should still be performed
     assert_eq!(
         vm.get_memory()[2],
-        cmd!{ DAT(None, 1, Immediate, 5, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 5, Immediate) }
     );
     // Current process should be terminated
-    assert_eq!(
-        vm.get_users_pcs(),
-        [[]]
-    );
+    assert_eq!(vm.get_users_pcs(), [[]]);
 }
 
 #[test]
@@ -631,7 +623,7 @@ fn test_mod() {
             DAT(None, 8, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 1, Immediate) },
     );
     test_operation(
         create_program!(
@@ -640,7 +632,7 @@ fn test_mod() {
             DAT(None, 3, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 3, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 3, Immediate, 1, Immediate) },
     );
     // Modifier: B
     test_operation(
@@ -650,7 +642,7 @@ fn test_mod() {
             DAT(None, 1, Immediate, 10, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 1, Immediate) },
     );
     // Modifier: AB
     test_operation(
@@ -660,7 +652,7 @@ fn test_mod() {
             DAT(None, 1, Immediate, 8, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 2, Immediate) },
     );
     // Modifier: BA
     test_operation(
@@ -670,7 +662,7 @@ fn test_mod() {
             DAT(None, 8, Immediate, 1, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 1, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 1, Immediate) },
     );
     // Modifier: X
     test_operation(
@@ -680,7 +672,7 @@ fn test_mod() {
             DAT(None, 8, Immediate, 9, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 0, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 0, Immediate) },
     );
     // Modifier: F
     test_operation(
@@ -690,7 +682,7 @@ fn test_mod() {
             DAT(None, 8, Immediate, 9, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 0, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 0, Immediate) },
     );
     // Modifier: I
     test_operation(
@@ -700,7 +692,7 @@ fn test_mod() {
             DAT(None, 8, Immediate, 9, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 2, Immediate, 0, Immediate) }
+        cmd! { DAT(None, 2, Immediate, 0, Immediate) },
     );
     // Modifier: None
     test_operation(
@@ -710,6 +702,6 @@ fn test_mod() {
             DAT(None, 1, Immediate, 8, Immediate)
         ),
         2,
-        cmd!{ DAT(None, 1, Immediate, 2, Immediate) }
+        cmd! { DAT(None, 1, Immediate, 2, Immediate) },
     );
 }
