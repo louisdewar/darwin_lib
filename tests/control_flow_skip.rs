@@ -171,10 +171,68 @@ fn seq() {
     test_seq(
         create_program! {
             SEQ(F, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SEQ(X, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+
+    test_seq(
+        create_program! {
+            SEQ(F, 1, Direct, 2, Direct)
             DAT(None, 1, Direct, 1, Direct)
-            DAT(None, 1, Direct, 1, Direct)
+            MOV(None, 1, Direct, 1, Direct)
         },
         true,
+    );
+    test_seq(
+        create_program! {
+            SEQ(X, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
+            MOV(None, 1, Direct, 1, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SEQ(I, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
+            MOV(None, 1, Direct, 1, Direct)
+        },
+        false,
+    );
+
+    test_seq(
+        create_program! {
+            SEQ(F, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
+            DAT(A, 1, Direct, 1, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SEQ(X, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
+            DAT(A, 1, Direct, 1, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SEQ(I, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
+            DAT(A, 1, Direct, 1, Direct)
+        },
+        false,
     );
 
     test_seq(
@@ -190,17 +248,50 @@ fn seq() {
         create_program! {
             SEQ(F, 1, Direct, 2, Direct)
             DAT(None, 0, Direct, 1, Direct)
-            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
         },
         false,
     );
     test_seq(
         create_program! {
-            SEQ(F, 1, Direct, 2, Direct)
+            SEQ(I, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
             DAT(None, 1, Direct, 0, Direct)
-            DAT(None, 0, Direct, 0, Direct)
         },
         false,
+    );
+    test_seq(
+        create_program! {
+            SEQ(X, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SEQ(F, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SEQ(I, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SEQ(X, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
     );
 }
 
