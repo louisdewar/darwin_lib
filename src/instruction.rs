@@ -34,6 +34,10 @@ impl std::fmt::Display for AddressMode {
 pub enum OpCode {
     MOV,
     ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
     DAT,
     JMP,
     SPL,

@@ -127,6 +127,20 @@ impl VirtualMachine {
         match instruction.op_code {
             MOV => handlers::mov(instruction, pc, memory_len, &mut self.memory),
             ADD => handlers::add(instruction, pc, memory_len, &mut self.memory),
+            SUB => handlers::sub(instruction, pc, memory_len, &mut self.memory),
+            MUL => handlers::mul(instruction, pc, memory_len, &mut self.memory),
+            DIV => {
+                // Will remove the last queued process if a division by zero occurs
+                if !handlers::div(instruction, pc, memory_len, &mut self.memory) {
+                    process_queue.pop_back().unwrap();
+                }
+            }
+            MOD => {
+                // Will remove the last queued process if a division by zero occurs
+                if !handlers::modulo(instruction, pc, memory_len, &mut self.memory) {
+                    process_queue.pop_back().unwrap();
+                }
+            }
             DAT => {
                 // Remove the last queued process (kill it)
                 process_queue.pop_back().unwrap();
