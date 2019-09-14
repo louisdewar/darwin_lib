@@ -137,158 +137,53 @@ fn invalid_jmn() {
 
 #[test]
 fn jmn() {
-    // Modifier: A, BA
-    test_jmp(
-        create_program! {
-            JMN(A, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        3,
-    );
-    test_jmp(
-        create_program! {
-            JMN(BA, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        3,
+    let test_matrix = [
+        cmd! { DAT(None, 0, Direct, 0, Direct) },
+        cmd! { DAT(None, 1, Direct, 0, Direct) },
+        cmd! { DAT(None, 0, Direct, 1, Direct) },
+        cmd! { DAT(None, 1, Direct, 1, Direct) },
+    ];
+
+    use_test_matrix(
+        cmd! { JMN(A, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, true, false, true],
     );
 
-    test_jmp(
-        create_program! {
-            JMN(A, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 2, Direct)
-        },
-        1,
+    use_test_matrix(
+        cmd! { JMN(BA, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, true, false, true],
     );
 
-    test_jmp(
-        create_program! {
-            JMN(BA, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 2, Direct)
-        },
-        1,
+    use_test_matrix(
+        cmd! { JMN(B, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, false, true, true],
     );
 
-    // Modifier: B, AB
-
-    test_jmp(
-        create_program! {
-            JMN(B, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(AB, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        1,
+    use_test_matrix(
+        cmd! { JMN(AB, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, false, true, true],
     );
 
-    test_jmp(
-        create_program! {
-            JMN(B, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 0, Direct, 2, Direct)
-        },
-        3,
+    use_test_matrix(
+        cmd! { JMN(F, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, false, false, true],
     );
 
-    test_jmp(
-        create_program! {
-            JMN(AB, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 0, Direct, 2, Direct)
-        },
-        3,
+    use_test_matrix(
+        cmd! { JMN(X, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, false, false, true],
     );
 
-    // Modifier: F, X, I
-    test_jmp(
-        create_program! {
-            JMN(F, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 0, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 0, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 0, Direct)
-        },
-        1,
-    );
-
-    test_jmp(
-        create_program! {
-            JMN(F, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 1, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 1, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 0, Direct, 1, Direct)
-        },
-        1,
-    );
-
-    test_jmp(
-        create_program! {
-            JMN(F, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 1, Direct, 1, Direct)
-        },
-        3,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 1, Direct, 1, Direct)
-        },
-        3,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Should jump
-            DAT(None, 1, Direct, 1, Direct)
-        },
-        3,
-    );
-
-    test_jmp(
-        create_program! {
-            JMN(F, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        1,
-    );
-    test_jmp(
-        create_program! {
-            JMN(X, 3, Direct, 1, Direct) // Shouldn't jump
-            DAT(None, 1, Direct, 0, Direct)
-        },
-        1,
+    use_test_matrix(
+        cmd! { JMN(I, 3, Direct, 1, Direct) },
+        &test_matrix,
+        &[false, false, false, true],
     );
 }
 
