@@ -84,6 +84,7 @@ impl VirtualMachine {
             users_pcs: (0..programs.len())
                 .map(|i| VecDeque::from(vec![indices[i]]))
                 .collect(),
+            // TODO: In future this will be a parameter of the new method
             max_processes: 8000,
         }
     }

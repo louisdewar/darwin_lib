@@ -146,8 +146,10 @@ pub fn seq(
 
     // Match arm will return true if it should skip (false otherwise)
     match modifier {
-        m::A | m::BA => memory[a_index].a_reg == memory[b_index].a_reg,
-        m::B | m::AB => memory[a_index].b_reg == memory[b_index].b_reg,
+        m::A => memory[a_index].a_reg == memory[b_index].a_reg,
+        m::BA => memory[a_index].b_reg == memory[b_index].a_reg,
+        m::B => memory[a_index].b_reg == memory[b_index].b_reg,
+        m::AB => memory[a_index].a_reg == memory[b_index].b_reg,
         m::F | m::X | m::I => {
             memory[a_index].a_reg == memory[b_index].a_reg
                 && memory[a_index].b_reg == memory[b_index].b_reg
@@ -179,8 +181,10 @@ pub fn sne(
 
     // Match arm will return true if it should skip (false otherwise)
     match modifier {
-        m::A | m::BA => memory[a_index].a_reg != memory[b_index].a_reg,
-        m::B | m::AB => memory[a_index].b_reg != memory[b_index].b_reg,
+        m::A => memory[a_index].a_reg != memory[b_index].a_reg,
+        m::BA => memory[a_index].b_reg != memory[b_index].a_reg,
+        m::B => memory[a_index].b_reg != memory[b_index].b_reg,
+        m::AB => memory[a_index].a_reg != memory[b_index].b_reg,
         m::F | m::X | m::I => {
             memory[a_index].a_reg != memory[b_index].a_reg
                 || memory[a_index].b_reg != memory[b_index].b_reg
@@ -212,8 +216,10 @@ pub fn slt(
 
     // Match arm will return true if it should skip (false otherwise)
     match modifier {
-        m::A | m::BA => memory[a_index].a_reg < memory[b_index].a_reg,
-        m::B | m::AB => memory[a_index].b_reg < memory[b_index].b_reg,
+        m::A => memory[a_index].a_reg < memory[b_index].a_reg,
+        m::BA => memory[a_index].b_reg < memory[b_index].a_reg,
+        m::B => memory[a_index].b_reg < memory[b_index].b_reg,
+        m::AB => memory[a_index].a_reg < memory[b_index].b_reg,
         m::F | m::X | m::I => panic!("Invalid modifier `F`, `X` or `I` for SLT"),
         m::None => panic!("Invalid modifier `None` for SLT"),
     }

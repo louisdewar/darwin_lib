@@ -532,65 +532,47 @@ fn invalid_seq() {
     );
 }
 
-#[test]
-fn seq() {
+fn test_seq(program: Vec<Instruction>, should_skip: bool) {
     use std::collections::VecDeque;
 
-    fn test_seq(program: Vec<Instruction>, should_skip: bool) {
-        let mut vm = VirtualMachine::new(20, vec![program]);
+    let mut vm = VirtualMachine::new(20, vec![program]);
 
-        vm.cycle();
+    vm.cycle();
 
-        if should_skip {
-            assert_eq!(
-                vm.get_users_pcs(),
-                &[VecDeque::from(vec![2])],
-                "Did not skip when it should have"
-            )
-        } else {
-            assert_eq!(
-                vm.get_users_pcs(),
-                &[VecDeque::from(vec![1])],
-                "Skipped when it shouldn't have"
-            )
-        }
+    if should_skip {
+        assert_eq!(
+            vm.get_users_pcs(),
+            &[VecDeque::from(vec![2])],
+            "Did not skip when it should have"
+        )
+    } else {
+        assert_eq!(
+            vm.get_users_pcs(),
+            &[VecDeque::from(vec![1])],
+            "Skipped when it shouldn't have"
+        )
     }
+}
 
-    // Modifier: A, BA
+#[test]
+fn seq() {
+    // Modifier: A
     test_seq(
         create_program! {
             SEQ(A, 1, Direct, 2, Direct)
-            DAT(None, 0, Direct, 0, Direct)
-            DAT(None, 0, Direct, 0, Direct)
-        },
-        true,
-    );
-    test_seq(
-        create_program! {
-            SEQ(BA, 1, Direct, 2, Direct)
-            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
             DAT(None, 0, Direct, 0, Direct)
         },
         true,
     );
-
     test_seq(
         create_program! {
             SEQ(A, 1, Direct, 2, Direct)
-            DAT(None, 1, Direct, 1, Direct)
             DAT(None, 1, Direct, 0, Direct)
-        },
-        true,
-    );
-    test_seq(
-        create_program! {
-            SEQ(BA, 1, Direct, 2, Direct)
             DAT(None, 1, Direct, 1, Direct)
-            DAT(None, 1, Direct, 0, Direct)
         },
         true,
     );
-
     test_seq(
         create_program! {
             SEQ(A, 1, Direct, 2, Direct)
@@ -599,16 +581,36 @@ fn seq() {
         },
         false,
     );
+
+    // Modifier: BA
     test_seq(
         create_program! {
             SEQ(BA, 1, Direct, 2, Direct)
             DAT(None, 1, Direct, 0, Direct)
             DAT(None, 0, Direct, 0, Direct)
         },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SEQ(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SEQ(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
         false,
     );
 
-    // Modifier: B, AB
+    // Modifier: B
     test_seq(
         create_program! {
             SEQ(B, 1, Direct, 2, Direct)
@@ -619,30 +621,12 @@ fn seq() {
     );
     test_seq(
         create_program! {
-            SEQ(AB, 1, Direct, 2, Direct)
-            DAT(None, 0, Direct, 0, Direct)
-            DAT(None, 0, Direct, 0, Direct)
-        },
-        true,
-    );
-
-    test_seq(
-        create_program! {
             SEQ(B, 1, Direct, 2, Direct)
             DAT(None, 1, Direct, 1, Direct)
             DAT(None, 0, Direct, 1, Direct)
         },
         true,
     );
-    test_seq(
-        create_program! {
-            SEQ(AB, 1, Direct, 2, Direct)
-            DAT(None, 1, Direct, 1, Direct)
-            DAT(None, 0, Direct, 1, Direct)
-        },
-        true,
-    );
-
     test_seq(
         create_program! {
             SEQ(B, 1, Direct, 2, Direct)
@@ -651,10 +635,28 @@ fn seq() {
         },
         false,
     );
+
+    // Modifier: AB
     test_seq(
         create_program! {
             SEQ(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SEQ(AB, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
             DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SEQ(AB, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
             DAT(None, 0, Direct, 0, Direct)
         },
         false,
@@ -719,5 +721,430 @@ fn seq() {
             DAT(None, 0, Direct, 0, Direct)
         },
         false,
+    );
+}
+
+#[test]
+#[should_panic]
+fn invalid_sne() {
+    // None is not a valid modifier
+    test_jmp(
+        create_program! {
+            SNE(None, 0, Direct, 0, Direct)
+        },
+        2,
+    );
+}
+
+#[test]
+fn sne() {
+    // Modifier: A
+    test_seq(
+        create_program! {
+            SNE(A, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(A, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(A, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(A, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(A, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    // Modifier: AB
+    test_seq(
+        create_program! {
+            SNE(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(AB, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
+    );
+
+    // Modifier: BA
+    test_seq(
+        create_program! {
+            SNE(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(BA, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    // Modifier: B
+    test_seq(
+        create_program! {
+            SNE(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(B, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SNE(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
+    );
+
+    // Modifier: F, X, I (Should all be indentical)
+    test_seq(
+        create_program! {
+            SNE(F, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(X, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(I, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SNE(F, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(X, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+    test_seq(
+        create_program! {
+            SNE(I, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SNE(F, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SNE(F, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SNE(F, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
+    );
+
+    test_seq(
+        create_program! {
+            SNE(F, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+}
+
+#[test]
+#[should_panic]
+fn invalid_slt_none() {
+    // None is not a valid modifier
+    test_jmp(
+        create_program! {
+            SLT(None, 0, Direct, 0, Direct)
+        },
+        1,
+    );
+}
+
+#[test]
+#[should_panic]
+fn invalid_slt_f() {
+    // None is not a valid modifier
+    test_jmp(
+        create_program! {
+            SLT(F, 0, Direct, 0, Direct)
+        },
+        1,
+    );
+}
+
+#[test]
+#[should_panic]
+fn invalid_slt_x() {
+    // None is not a valid modifier
+    test_jmp(
+        create_program! {
+            SLT(X, 0, Direct, 0, Direct)
+        },
+        1,
+    );
+}
+
+#[test]
+#[should_panic]
+fn invalid_slt_i() {
+    // None is not a valid modifier
+    test_jmp(
+        create_program! {
+            SLT(I, 0, Direct, 0, Direct)
+        },
+        1,
+    );
+}
+
+#[test]
+fn slt() {
+    // Modifier: A
+    test_seq(
+        create_program! {
+            SLT(A, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(A, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(A, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
+    );
+
+    // Modifier: B
+    test_seq(
+        create_program! {
+            SLT(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(B, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
+    );
+
+    // Modifier: AB
+    test_seq(
+        create_program! {
+            SLT(AB, 1, Direct, 2, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(AB, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        true,
+    );
+
+    // Modifier: BA
+    test_seq(
+        create_program! {
+            SLT(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 0, Direct, 1, Direct)
+        },
+        false,
+    );
+    test_seq(
+        create_program! {
+            SLT(BA, 1, Direct, 2, Direct)
+            DAT(None, 0, Direct, 0, Direct)
+            DAT(None, 1, Direct, 0, Direct)
+        },
+        true,
     );
 }
