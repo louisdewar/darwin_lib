@@ -162,18 +162,12 @@ pub fn div(
         m::X => {
             let result1 = memory[destination].b_reg.checked_div(memory[source].a_reg);
             let result2 = memory[destination].a_reg.checked_div(memory[source].b_reg);
-            match result1 {
-                Some(t) => {
-                    memory[destination].b_reg = t;
-                }
-                None => {}
-            };
-            match result2 {
-                Some(t) => {
-                    memory[destination].a_reg = t;
-                }
-                None => {}
-            };
+            if let Some(t) = result1 {
+                memory[destination].b_reg = t;
+            }
+            if let Some(t) = result2{
+                memory[destination].a_reg = t;
+            }
             if result1 == None || result2 == None {
                 Err(())
             } else {
@@ -183,18 +177,12 @@ pub fn div(
         m::F | m::I => {
             let result1 = memory[destination].a_reg.checked_div(memory[source].a_reg);
             let result2 = memory[destination].b_reg.checked_div(memory[source].b_reg);
-            match result1 {
-                Some(t) => {
-                    memory[destination].a_reg = t;
-                }
-                None => {}
-            };
-            match result2 {
-                Some(t) => {
-                    memory[destination].b_reg = t;
-                }
-                None => {}
-            };
+            if let Some(t) = result1 {
+                memory[destination].a_reg = t;
+            }
+            if let Some(t) = result2 {
+                memory[destination].b_reg = t;
+            }
             if result1 == None || result2 == None {
                 Err(())
             } else {
@@ -256,18 +244,12 @@ pub fn modulo(
         m::X => {
             let result1 = memory[destination].b_reg.checked_rem(memory[source].a_reg);
             let result2 = memory[destination].a_reg.checked_rem(memory[source].b_reg);
-            match result1 {
-                Some(t) => {
-                    memory[destination].b_reg = t;
-                }
-                None => {}
-            };
-            match result2 {
-                Some(t) => {
-                    memory[destination].a_reg = t;
-                }
-                None => {}
-            };
+            if let Some(t) = result1 {
+                memory[destination].b_reg = t;
+            }
+            if let Some(t) = result2{
+                memory[destination].a_reg = t;
+            }
             if result1 == None || result2 == None {
                 Err(())
             } else {
@@ -277,18 +259,12 @@ pub fn modulo(
         m::F | m::I => {
             let result1 = memory[destination].a_reg.checked_rem(memory[source].a_reg);
             let result2 = memory[destination].b_reg.checked_rem(memory[source].b_reg);
-            match result1 {
-                Some(t) => {
-                    memory[destination].a_reg = t;
-                }
-                None => {}
-            };
-            match result2 {
-                Some(t) => {
-                    memory[destination].b_reg = t;
-                }
-                None => {}
-            };
+            if let Some(t) = result1 {
+                memory[destination].a_reg = t;
+            }
+            if let Some(t) = result2 {
+                memory[destination].b_reg = t;
+            }
             if result1 == None || result2 == None {
                 Err(())
             } else {
