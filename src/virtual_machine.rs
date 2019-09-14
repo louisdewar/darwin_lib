@@ -127,20 +127,14 @@ impl VirtualMachine {
             MUL => handlers::mul(instruction, pc, memory_len, &mut self.memory),
             DIV => {
                 // Will remove the last queued process if a division by zero occurs
-                match handlers::div(instruction, pc, memory_len, &mut self.memory) {
-                    Ok(_) => {}
-                    Err(_) => {
-                        process_queue.pop_back().unwrap();
-                    }
+                if !handlers::div(instruction, pc, memory_len, &mut self.memory) {
+                    process_queue.pop_back().unwrap();
                 }
             }
             MOD => {
                 // Will remove the last queued process if a division by zero occurs
-                match handlers::modulo(instruction, pc, memory_len, &mut self.memory) {
-                    Ok(_) => {}
-                    Err(_) => {
-                        process_queue.pop_back().unwrap();
-                    }
+                if !handlers::modulo(instruction, pc, memory_len, &mut self.memory) {
+                    process_queue.pop_back().unwrap();
                 }
             }
             DAT => {
