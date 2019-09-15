@@ -3,7 +3,7 @@ use darwin_lib::{cmd, create_program, Instruction, VirtualMachine};
 fn test_jmp(program: Vec<Instruction>, expected_location: usize) {
     use std::collections::VecDeque;
 
-    let mut vm = VirtualMachine::new(20, vec![program]);
+    let mut vm = VirtualMachine::new_simple(20, program);
 
     vm.cycle();
 
@@ -204,7 +204,7 @@ fn djn() {
     use std::collections::VecDeque;
 
     fn test_djn(program: Vec<Instruction>, expected_2: Instruction, expected_3: Instruction) {
-        let mut vm = VirtualMachine::new(20, vec![program]);
+        let mut vm = VirtualMachine::new_simple(20, program);
 
         for _ in 0..8 {
             vm.cycle();

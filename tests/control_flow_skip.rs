@@ -3,7 +3,7 @@ use darwin_lib::{create_program, Instruction, VirtualMachine};
 fn test_seq(program: Vec<Instruction>, should_skip: bool) {
     use std::collections::VecDeque;
 
-    let mut vm = VirtualMachine::new(20, vec![program]);
+    let mut vm = VirtualMachine::new_simple(20, program);
 
     vm.cycle();
 

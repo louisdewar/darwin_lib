@@ -2,6 +2,26 @@ use crate::{handlers, AddressMode, Instruction, Modifier, OpCode};
 
 use std::collections::VecDeque;
 
+#[derive(Clone, Debug)]
+pub struct MatchSettings {
+    /// The minimum seperation between warriors when they are loaded
+    pub min_seperation: usize,
+    /// The maximum number of processes for an individual user
+    pub max_processes: usize,
+    /// The size of the core
+    pub core_size: usize,
+}
+
+impl Default for MatchSettings {
+    fn default() -> MatchSettings {
+        MatchSettings {
+            min_seperation: 100,
+            max_processes: 8000,
+            core_size: 8000,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct VirtualMachine {
     memory: Vec<Instruction>,
@@ -10,7 +30,7 @@ pub struct VirtualMachine {
     users_pcs: Vec<VecDeque<usize>>,
     /// The id of the user whose process should run next
     cur_user: usize,
-    /// The maximum number of processes for a particular user
+    /// The maximum number of processes for an individual user
     max_processes: usize,
 }
 
@@ -55,20 +75,30 @@ fn generate_random_insertion_points(size: usize, programs: &[Vec<Instruction>]) 
     indices
 }
 
+fn generate_empty_memory(size: usize) -> Vec<Instruction> {
+    (0..size)
+        .map(|_| {
+            Instruction::new(
+                OpCode::DAT,
+                Modifier::None,
+                0,
+                AddressMode::Immediate,
+                0,
+                AddressMode::Immediate,
+            )
+        })
+        .collect()
+}
+
 impl VirtualMachine {
-    pub fn new(size: usize, programs: Vec<Vec<Instruction>>) -> VirtualMachine {
-        let mut memory: Vec<Instruction> = (0..size)
-            .map(|_| {
-                Instruction::new(
-                    OpCode::DAT,
-                    Modifier::None,
-                    0,
-                    AddressMode::Immediate,
-                    0,
-                    AddressMode::Immediate,
-                )
-            })
-            .collect();
+    /// Creates a new VM with specified programs and match settings
+    /// This inserts programs randomly into memory
+    pub fn new_battle(
+        size: usize,
+        programs: &[Vec<Instruction>],
+        match_settings: &MatchSettings,
+    ) -> VirtualMachine {
+        let mut memory = generate_empty_memory(size);
 
         let indices = generate_random_insertion_points(size, &programs);
 
@@ -84,7 +114,28 @@ impl VirtualMachine {
             users_pcs: (0..programs.len())
                 .map(|i| VecDeque::from(vec![indices[i]]))
                 .collect(),
-            // TODO: In future this will be a parameter of the new method
+            max_processes: match_settings.max_processes,
+        }
+    }
+
+    /// Creates a new VM with one program inserted at index 0
+    /// This is designed to be used as an actual VM, not a contest
+    pub fn new_simple(size: usize, program: Vec<Instruction>) -> VirtualMachine {
+        assert!(
+            size >= program.len(),
+            "Program length was greater than memory size"
+        );
+
+        let mut memory = generate_empty_memory(size);
+
+        for (i, instruction) in program.iter().enumerate() {
+            memory[i] = *instruction
+        }
+
+        VirtualMachine {
+            memory,
+            cur_user: 0,
+            users_pcs: vec![VecDeque::from(vec![0])],
             max_processes: 8000,
         }
     }
