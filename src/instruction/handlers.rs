@@ -1,10 +1,13 @@
 use crate::{AddressMode, Instruction};
 
-mod operators;
-pub use operators::*;
+mod control_flow;
+pub use control_flow::*;
 
 mod general;
 pub use general::*;
+
+mod operators;
+pub use operators::*;
 
 #[inline]
 pub fn relative_address(max: usize, a: usize, b: isize) -> usize {
