@@ -12,4 +12,4 @@ before_script:
 script:
   - cargo fmt --all -- --check
   - cargo clippy --all-targets --all-features -- -D warnings
-  - cargo test --release
+  - cargo test
