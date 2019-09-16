@@ -34,7 +34,11 @@ pub struct VirtualMachine {
     max_processes: usize,
 }
 
-fn generate_random_insertion_points(size: usize, programs: &[Vec<Instruction>], min_seperation: usize) -> Vec<usize> {
+fn generate_random_insertion_points(
+    size: usize,
+    programs: &[Vec<Instruction>],
+    min_seperation: usize,
+) -> Vec<usize> {
     use rand::Rng;
     let mut rng = rand::thread_rng();
 
@@ -54,13 +58,17 @@ fn generate_random_insertion_points(size: usize, programs: &[Vec<Instruction>], 
 
         // Therefore the start of the free block of memory is equivalent to the total length of the first program
         // and the length is the core size - total program length
-        vec![Block { start: first_program_total_len % size, len: size.saturating_sub(first_program_total_len) }]
+        vec![Block {
+            start: first_program_total_len % size,
+            len: size.saturating_sub(first_program_total_len),
+        }]
     };
 
     for program in programs.iter().skip(1) {
         println!("{:?}", free_blocks);
 
-        let total_free_spaces: usize = free_blocks.iter()
+        let total_free_spaces: usize = free_blocks
+            .iter()
             .map(|block| {
                 if block.len < program.len() {
                     0
@@ -89,7 +97,13 @@ fn generate_random_insertion_points(size: usize, programs: &[Vec<Instruction>], 
                 indices.push(block.start + n);
 
                 // The block before this program now has length n - min_seperation or 0 if there isn't enough room
-                free_blocks.insert(i, Block { start: free_blocks[i].start, len: n.saturating_sub(min_seperation) });
+                free_blocks.insert(
+                    i,
+                    Block {
+                        start: free_blocks[i].start,
+                        len: n.saturating_sub(min_seperation),
+                    },
+                );
 
                 // The distance from the previous start to the new start
                 let new_start_distance = n + (2 * min_seperation) + program.len();
@@ -134,7 +148,11 @@ impl VirtualMachine {
     ) -> VirtualMachine {
         let mut memory = generate_empty_memory(match_settings.core_size);
 
-        let indices = generate_random_insertion_points(match_settings.core_size, &programs, match_settings.min_seperation);
+        let indices = generate_random_insertion_points(
+            match_settings.core_size,
+            &programs,
+            match_settings.min_seperation,
+        );
 
         for (start_index, program) in indices.iter().zip(programs.iter()) {
             for (instruction_i, instruction) in program.iter().enumerate() {
