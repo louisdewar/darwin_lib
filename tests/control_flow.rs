@@ -2,12 +2,12 @@ use darwin_lib::{create_program, VirtualMachine};
 
 #[test]
 fn spl() {
-    let mut vm = VirtualMachine::new(
+    let mut vm = VirtualMachine::new_simple(
         20,
-        vec![create_program! {
+        create_program! {
             SPL(None, 1, Direct, 0, Direct)
             JMP(None, -1, Direct, 0, Direct)
-        }],
+        },
     );
 
     vm.cycle();
@@ -26,11 +26,11 @@ fn spl() {
 
 #[test]
 fn nop() {
-    let mut vm = VirtualMachine::new(
+    let mut vm = VirtualMachine::new_simple(
         20,
-        vec![create_program! {
+        create_program! {
             NOP(None, 0, Direct, 0, Direct)
-        }],
+        },
     );
 
     vm.cycle();

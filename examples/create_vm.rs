@@ -1,9 +1,16 @@
-use darwin_lib::{cmd, create_program, VirtualMachine};
+use darwin_lib::{cmd, create_program, MatchSettings, VirtualMachine};
 
 fn main() {
     let program = create_program! { MOV(I, 0, Direct, 1, Direct) };
 
-    let mut vm = VirtualMachine::new(20, vec![program]);
+    let mut vm = VirtualMachine::new_battle(
+        &[program],
+        &MatchSettings {
+            min_seperation: 10,
+            core_size: 20,
+            ..Default::default()
+        },
+    );
 
     vm.cycle();
     vm.cycle();
@@ -17,5 +24,7 @@ fn main() {
         "After 2 cycles of the VM there should be exactly 3 copies of the imp"
     );
 
-    println!("VM: {:?}", vm);
+    for (i, instruction) in vm.get_memory().iter().enumerate() {
+        println!("{:02}. {}", i, instruction);
+    }
 }

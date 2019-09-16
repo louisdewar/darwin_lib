@@ -1,7 +1,7 @@
 use darwin_lib::{cmd, create_program, Instruction, VirtualMachine};
 
 fn test_operation(program: Vec<Instruction>, result_mem_location: usize, result: Instruction) {
-    let mut vm = VirtualMachine::new(20, vec![program]);
+    let mut vm = VirtualMachine::new_simple(20, program);
     vm.cycle();
 
     assert_eq!(vm.get_memory()[result_mem_location], result)
@@ -595,13 +595,13 @@ fn test_div() {
 
 #[test]
 fn div_by_zero() {
-    let mut vm = VirtualMachine::new(
+    let mut vm = VirtualMachine::new_simple(
         20,
-        vec![create_program!(
+        create_program!(
             DIV(F, 1, Direct, 2, Direct)
             DAT(None, 0, Immediate, 2, Immediate)
             DAT(None, 1, Immediate, 10, Immediate)
-        )],
+        ),
     );
     vm.cycle();
     // Valid b_reg division should still be performed

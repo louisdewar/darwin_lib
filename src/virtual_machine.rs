@@ -2,6 +2,26 @@ use crate::{handlers, AddressMode, Instruction, Modifier, OpCode};
 
 use std::collections::VecDeque;
 
+#[derive(Clone, Debug)]
+pub struct MatchSettings {
+    /// The minimum seperation between warriors when they are loaded
+    pub min_seperation: usize,
+    /// The maximum number of processes for an individual user
+    pub max_processes: usize,
+    /// The size of the core
+    pub core_size: usize,
+}
+
+impl Default for MatchSettings {
+    fn default() -> MatchSettings {
+        MatchSettings {
+            min_seperation: 100,
+            max_processes: 8000,
+            core_size: 8000,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct VirtualMachine {
     memory: Vec<Instruction>,
@@ -10,71 +30,133 @@ pub struct VirtualMachine {
     users_pcs: Vec<VecDeque<usize>>,
     /// The id of the user whose process should run next
     cur_user: usize,
-    /// The maximum number of processes for a particular user
+    /// The maximum number of processes for an individual user
     max_processes: usize,
 }
 
-// Export this into a function to make it easier to implement more insertion strategies in the future
-fn generate_random_insertion_points(size: usize, programs: &[Vec<Instruction>]) -> Vec<usize> {
-    let program_lengths: Vec<usize> = programs.iter().map(|v| v.len()).collect();
-    let total_program_length: usize = program_lengths.iter().sum();
-
-    let default_padding = 10;
-
-    let mut budget: usize = size
-        .checked_sub(total_program_length + default_padding * programs.len())
-        .expect("Total program length plus padding is greater than memory length");
-
+fn generate_random_insertion_points(
+    size: usize,
+    programs: &[Vec<Instruction>],
+    min_seperation: usize,
+) -> Vec<usize> {
     use rand::Rng;
     let mut rng = rand::thread_rng();
 
-    // First program is inserted at 0
-    let mut indices = vec![0];
-    let mut cur_index = program_lengths[0] + default_padding;
+    #[derive(Debug)]
+    struct Block {
+        start: usize,
+        len: usize,
+    }
 
-    for (i, program_len) in program_lengths.iter().enumerate().skip(1) {
-        // Mean of a shared amount of the *remaining* (hence -i) budget
-        // note: if there were two programs there would be 3 gaps
-        let mean = budget as f64 / (programs.len() + 1 - i) as f64;
+    // The First program is inserted `min_seperation` instructions into memory
+    let mut indices = vec![min_seperation];
 
-        let tenth_budget = budget as f64 * 0.1;
+    // A list of blocks of memory that are free
+    let mut free_blocks = {
+        // The total space occupied by the first program plus padding
+        let first_program_total_len = min_seperation * 2 + programs[0].len();
 
-        // Generate a number in range ±10% of the budget around the mean
-        let n: usize = rng.gen_range(
-            (mean - tenth_budget) as usize,
-            (mean + tenth_budget) as usize,
-        );
+        // Therefore the start of the free block of memory is equivalent to the total length of the first program
+        // and the length is the core size - total program length
+        vec![Block {
+            start: first_program_total_len % size,
+            len: size.saturating_sub(first_program_total_len),
+        }]
+    };
 
-        // Find the start index, including default padding and extra random padding
-        cur_index = cur_index + program_len + default_padding + n;
-        budget -= program_len + default_padding + n;
+    for program in programs.iter().skip(1) {
+        println!("{:?}", free_blocks);
 
-        indices.push(cur_index);
+        let total_free_spaces: usize = free_blocks
+            .iter()
+            .map(|block| {
+                if block.len < program.len() {
+                    0
+                } else {
+                    // If there is exactly enough room (block - program == 0) then there is room
+                    // for one program hence +1
+                    (block.len - program.len()) + 1
+                }
+            })
+            .sum();
+
+        if total_free_spaces == 0 {
+            panic!("Not enough room to insert all the programs");
+        }
+
+        let mut n: usize = rng.gen_range(0, total_free_spaces);
+
+        for i in 0..free_blocks.len() {
+            let block = &free_blocks[i];
+
+            if n > block.len {
+                // Program should be inserted outside this block, so continue to the next and deduct the length
+                n -= block.len;
+            } else {
+                // Program is within this block
+                indices.push(block.start + n);
+
+                // The block before this program now has length n - min_seperation or 0 if there isn't enough room
+                free_blocks.insert(
+                    i,
+                    Block {
+                        start: free_blocks[i].start,
+                        len: n.saturating_sub(min_seperation),
+                    },
+                );
+
+                // The distance from the previous start to the new start
+                let new_start_distance = n + (2 * min_seperation) + program.len();
+                // If there is enough room for another free_block after this new program and its padding
+                if free_blocks[i + 1].len > new_start_distance {
+                    free_blocks[i + 1].start = (free_blocks[i].start + new_start_distance) % size;
+                } else {
+                    // Remove the block since there isn't enough room
+                    free_blocks.remove(i + 1);
+                }
+
+                // Move on to the next program
+                break;
+            }
+        }
     }
 
     indices
 }
 
-impl VirtualMachine {
-    pub fn new(size: usize, programs: Vec<Vec<Instruction>>) -> VirtualMachine {
-        let mut memory: Vec<Instruction> = (0..size)
-            .map(|_| {
-                Instruction::new(
-                    OpCode::DAT,
-                    Modifier::None,
-                    0,
-                    AddressMode::Immediate,
-                    0,
-                    AddressMode::Immediate,
-                )
-            })
-            .collect();
+fn generate_empty_memory(size: usize) -> Vec<Instruction> {
+    (0..size)
+        .map(|_| {
+            Instruction::new(
+                OpCode::DAT,
+                Modifier::None,
+                0,
+                AddressMode::Immediate,
+                0,
+                AddressMode::Immediate,
+            )
+        })
+        .collect()
+}
 
-        let indices = generate_random_insertion_points(size, &programs);
+impl VirtualMachine {
+    /// Creates a new VM with specified programs and match settings
+    /// This inserts programs randomly into memory
+    pub fn new_battle(
+        programs: &[Vec<Instruction>],
+        match_settings: &MatchSettings,
+    ) -> VirtualMachine {
+        let mut memory = generate_empty_memory(match_settings.core_size);
+
+        let indices = generate_random_insertion_points(
+            match_settings.core_size,
+            &programs,
+            match_settings.min_seperation,
+        );
 
         for (start_index, program) in indices.iter().zip(programs.iter()) {
             for (instruction_i, instruction) in program.iter().enumerate() {
-                memory[(start_index + instruction_i) % size] = *instruction
+                memory[(start_index + instruction_i) % match_settings.core_size] = *instruction
             }
         }
 
@@ -84,7 +166,28 @@ impl VirtualMachine {
             users_pcs: (0..programs.len())
                 .map(|i| VecDeque::from(vec![indices[i]]))
                 .collect(),
-            // TODO: In future this will be a parameter of the new method
+            max_processes: match_settings.max_processes,
+        }
+    }
+
+    /// Creates a new VM with one program inserted at index 0
+    /// This is designed to be used as an actual VM, not a contest
+    pub fn new_simple(size: usize, program: Vec<Instruction>) -> VirtualMachine {
+        assert!(
+            size >= program.len(),
+            "Program length was greater than memory size"
+        );
+
+        let mut memory = generate_empty_memory(size);
+
+        for (i, instruction) in program.iter().enumerate() {
+            memory[i] = *instruction
+        }
+
+        VirtualMachine {
+            memory,
+            cur_user: 0,
+            users_pcs: vec![VecDeque::from(vec![0])],
             max_processes: 8000,
         }
     }
