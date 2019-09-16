@@ -139,6 +139,29 @@ fn generate_empty_memory(size: usize) -> Vec<Instruction> {
         .collect()
 }
 
+fn handle_pre_decrement(
+    reg: isize,
+    mode: AddressMode,
+    cur_address: usize,
+    max: usize,
+    memory: &mut [Instruction],
+) {
+    use handlers::relative_address;
+    use AddressMode::*;
+
+    match mode {
+        PreDecrementIndirectA => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].a_reg = (memory[index].a_reg - 1 + max as isize) % max as isize;
+        }
+        PreDecrementIndirectB => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].b_reg = (memory[index].b_reg - 1 + max as isize) % max as isize;
+        }
+        _ => {}
+    }
+}
+
 impl VirtualMachine {
     /// Creates a new VM with specified programs and match settings
     /// This inserts programs randomly into memory
@@ -223,6 +246,22 @@ impl VirtualMachine {
         // Advance the PC by 1 and add it to the back of the queue (for this user)
         // For the commands that don't want to have the PC advanced by 1, they must override this
         process_queue.push_back((pc + 1) % memory_len);
+
+        // Handle pre-decrement address modes:
+        handle_pre_decrement(
+            instruction.a_reg,
+            instruction.a_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
+        handle_pre_decrement(
+            instruction.b_reg,
+            instruction.b_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
 
         use OpCode::*;
 
