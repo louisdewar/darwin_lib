@@ -7,3 +7,11 @@ fn simple_program() {
         create_program! { MOV(I, 0, Direct, 1, Direct) },
     );
 }
+
+#[test]
+fn single_value() {
+    assert_eq!(
+        parse_program("JMP 2").unwrap(),
+        create_program! { JMP(B, 2, Direct, 0, Direct) },
+    );
+}
