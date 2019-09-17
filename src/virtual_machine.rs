@@ -162,6 +162,29 @@ fn handle_pre_decrement(
     }
 }
 
+fn handle_post_decrement(
+    reg: isize,
+    mode: AddressMode,
+    cur_address: usize,
+    max: usize,
+    memory: &mut [Instruction],
+) {
+    use handlers::relative_address;
+    use AddressMode::*;
+
+    match mode {
+        PostDecrementIndirectA => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].a_reg = (memory[index].a_reg - 1 + max as isize) % max as isize;
+        }
+        PostDecrementIndirectB => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].b_reg = (memory[index].b_reg - 1 + max as isize) % max as isize;
+        }
+        _ => {}
+    }
+}
+
 impl VirtualMachine {
     /// Creates a new VM with specified programs and match settings
     /// This inserts programs randomly into memory
@@ -335,6 +358,22 @@ impl VirtualMachine {
             // Does nothing
             NOP => {}
         }
+
+        // Handle post-decrement address modes:
+        handle_post_decrement(
+            instruction.a_reg,
+            instruction.a_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
+        handle_post_decrement(
+            instruction.b_reg,
+            instruction.b_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
 
         // Advance the user counter
         self.cur_user = (self.cur_user + 1) % self.users_pcs.len();

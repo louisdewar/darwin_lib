@@ -19,7 +19,7 @@ fn random_insert() {
 
     let memory = vm.get_memory();
 
-    // Due to the contraints of min_seperation and core_size, even though new_battle randomly inserts
+    // Due to the constraints of min_separation and core_size, even though new_battle randomly inserts
     // there is only 1 valid solution for this so each insertion point is known
     // Also since the VM is cycled once the program first inserted at index 10, should have created a copy at 11
     for i in &[10, 11, 21] {
