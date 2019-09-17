@@ -9,7 +9,7 @@ fn random_insert() {
     let mut vm = VirtualMachine::new_battle(
         &[imp.clone(), imp.clone()],
         &MatchSettings {
-            min_seperation: 10,
+            min_separation: 10,
             core_size: 22,
             ..Default::default()
         },
@@ -52,7 +52,7 @@ fn random_insert_not_enough_room() {
     VirtualMachine::new_battle(
         &[imp.clone(), imp.clone()],
         &MatchSettings {
-            min_seperation: 10,
+            min_separation: 10,
             core_size: 21,
             ..Default::default()
         },

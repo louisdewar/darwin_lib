@@ -45,6 +45,10 @@ fn indirect_a() {
         follow_address(1, PreDecrementIndirectA, 9, memory.len(), &memory),
         2
     );
+    assert_eq!(
+        follow_address(1, PostDecrementIndirectA, 9, memory.len(), &memory),
+        2
+    );
 
     // This should point to index 1 which in turn points to 3+1=4
     assert_eq!(follow_address(1, IndirectA, 0, memory.len(), &memory), 4);
@@ -52,11 +56,19 @@ fn indirect_a() {
         follow_address(1, PreDecrementIndirectA, 0, memory.len(), &memory),
         4
     );
+    assert_eq!(
+        follow_address(1, PostDecrementIndirectA, 0, memory.len(), &memory),
+        4
+    );
 
     // This should point to index 3 which points to itself (it's a DAT 0, 0)
     assert_eq!(follow_address(0, IndirectA, 3, memory.len(), &memory), 3);
     assert_eq!(
         follow_address(0, PreDecrementIndirectA, 3, memory.len(), &memory),
+        3
+    );
+    assert_eq!(
+        follow_address(0, PostDecrementIndirectA, 3, memory.len(), &memory),
         3
     );
 }
@@ -75,6 +87,10 @@ fn indirect_b() {
         follow_address(1, PreDecrementIndirectB, 9, memory.len(), &memory),
         4
     );
+    assert_eq!(
+        follow_address(1, PostDecrementIndirectB, 9, memory.len(), &memory),
+        4
+    );
 
     // This should point to index 1 which in turn points to 5+1=6
     assert_eq!(follow_address(1, IndirectB, 0, memory.len(), &memory), 6);
@@ -82,11 +98,19 @@ fn indirect_b() {
         follow_address(1, PreDecrementIndirectB, 0, memory.len(), &memory),
         6
     );
+    assert_eq!(
+        follow_address(1, PostDecrementIndirectB, 0, memory.len(), &memory),
+        6
+    );
 
     // This should point to index 3 which points to itself (it's a DAT 0, 0)
     assert_eq!(follow_address(0, IndirectB, 3, memory.len(), &memory), 3);
     assert_eq!(
         follow_address(0, PreDecrementIndirectB, 3, memory.len(), &memory),
+        3
+    );
+    assert_eq!(
+        follow_address(0, PostDecrementIndirectB, 3, memory.len(), &memory),
         3
     );
 }

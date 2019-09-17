@@ -15,10 +15,14 @@ pub enum AddressMode {
     /// The number following this operand points to the location where a relative pointer to the
     /// value can be found in the B-register
     IndirectB,
-    // Behaves like IndirectA, but it decrements the number it points to by 1 before running the instruction
+    /// Behaves like IndirectA, but it decrements the number it points to by 1 before running the instruction
     PreDecrementIndirectA,
-    // Behaves like IndirectB, but it decrements the number it points to by 1 before running the instruction
+    /// Behaves like IndirectB, but it decrements the number it points to by 1 before running the instruction
     PreDecrementIndirectB,
+    /// Behaves like IndirectA, but it decrements the number it points to by 1 after running the instruction
+    PostDecrementIndirectA,
+    /// Behaves like IndirectB, but it decrements the number it points to by 1 after running the instruction
+    PostDecrementIndirectB,
 }
 
 impl std::fmt::Display for AddressMode {
@@ -31,6 +35,8 @@ impl std::fmt::Display for AddressMode {
             IndirectB => write!(f, "@"),
             PreDecrementIndirectA => write!(f, "{{"),
             PreDecrementIndirectB => write!(f, "<"),
+            PostDecrementIndirectA => write!(f, "}}"),
+            PostDecrementIndirectB => write!(f, ">"),
         }
     }
 }
