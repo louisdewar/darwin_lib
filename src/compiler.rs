@@ -29,7 +29,11 @@ pub enum ParseError<'a> {
 impl fmt::Display for ParseError<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ParseError::InvalidModifier(l) => write!(f, "An incompatable modifier / OpCode combo was used on line {}", l),
+            ParseError::InvalidModifier(l) => write!(
+                f,
+                "An incompatable modifier / OpCode combo was used on line {}",
+                l
+            ),
             ParseError::NotEnoughArgumets(l) => {
                 write!(f, "Not enough arguments supplied on line {}", l)
             }
@@ -82,12 +86,12 @@ fn parse_line(line: &str, line_num: usize) -> Result<Instruction, ParseError> {
             if match op_code {
                 OpCode::JMP => true,
                 OpCode::SPL => true,
-                _ => false
+                _ => false,
             } {
                 (op_code, modifier, reg_a, mode_a, 0, AddressMode::Direct)
             } else {
                 // Needed 2 params got 1
-                return Err(ParseError::NotEnoughArgumets(line_num))
+                return Err(ParseError::NotEnoughArgumets(line_num));
             }
         }
         TokenizedLine::Double(op_code, modifier, reg_a, mode_a, reg_b, mode_b) => {
@@ -95,7 +99,9 @@ fn parse_line(line: &str, line_num: usize) -> Result<Instruction, ParseError> {
         }
     };
     if modifier == Modifier::I && op_code != OpCode::MOV {
-        return Err(ParseError::InvalidModifier(line_num))
+        return Err(ParseError::InvalidModifier(line_num));
     }
-    Ok(Instruction::new(op_code, modifier, reg_a, mode_a, reg_b, mode_b))
+    Ok(Instruction::new(
+        op_code, modifier, reg_a, mode_a, reg_b, mode_b,
+    ))
 }
