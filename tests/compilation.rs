@@ -98,65 +98,60 @@ fn every_opcode() {
 #[test]
 fn invalid_modifier() {
     assert_eq!(
-        match parse_program("DAT.I 0 0") {
-            Ok(_) => panic!("An error should have occured, but didn't"),
-            Err(e) => e,
-        },
-        ParseError::InvalidModifier(1)
+        parse_program("DAT.I 0 0"),
+        Err(ParseError::InvalidModifier(1))
     )
 }
 
 #[test]
 fn not_enough_arguments() {
     assert_eq!(
-        match parse_program("MOV 0") {
-            Ok(_) => panic!("An error should have occured, but didn't"),
-            Err(e) => e,
-        },
-        ParseError::NotEnoughArgumets(1)
+        parse_program("MOV 0"),
+        Err(ParseError::NotEnoughArgumets(1))
     )
 }
 
 #[test]
 fn unexpected_argument() {
     assert_eq!(
-        match parse_program("MOV 0 0 0") {
-            Ok(_) => panic!("An error should have occured, but didn't"),
-            Err(e) => e,
-        },
-        ParseError::UnexpectedArgument(1)
+        parse_program("MOV 0 0 0"),
+        Err(ParseError::UnexpectedArgument(1))
     )
 }
 
 #[test]
 fn unknown_opcode() {
     assert_eq!(
-        match parse_program("ABC 0 0") {
-            Ok(_) => panic!("An error should have occured, but didn't"),
-            Err(e) => e,
-        },
-        ParseError::UnknownOpCode((1, "ABC"))
+        parse_program("ABC 0 0"),
+        Err(ParseError::UnknownOpCode((1, "ABC")))
     )
 }
 
 #[test]
 fn unknown_modifier() {
     assert_eq!(
-        match parse_program("DAT.XYZ 0 0") {
-            Ok(_) => panic!("An error should have occured, but didn't"),
-            Err(e) => e,
-        },
-        ParseError::UnknownModifier((1, "XYZ"))
+        parse_program("DAT.XYZ 0 0"),
+        Err(ParseError::UnknownModifier((1, "XYZ")))
     )
 }
 
 #[test]
 fn unknown_value() {
     assert_eq!(
-        match parse_program("DAT zero 0") {
-            Ok(_) => panic!("An error should have occured, but didn't"),
-            Err(e) => e,
-        },
-        ParseError::UnknownValue((1, "zero"))
+        parse_program("DAT zero 0"),
+        Err(ParseError::UnknownValue((1, "zero")))
+    )
+}
+
+#[test]
+fn error_line_number() {
+    assert_eq!(
+        parse_program(
+            "DAT 0 0
+DAT 0 0
+DAT 0 0 0
+DAT 0 0"
+        ),
+        Err(ParseError::UnexpectedArgument(3))
     )
 }

@@ -26,28 +26,25 @@ pub fn tokenize_line(line: &str, line_num: usize) -> Result<TokenizedLine, Parse
     // If only two words supplied, we return a TokenizedLine::Single
     if words.len() == 2 {
         // If no modifier is supplied, Singles always default to .B
-        match modifier {
-            Some(m) => Ok(TokenizedLine::Single(op_code, m, reg_a, mode_a)),
-            None => Ok(TokenizedLine::Single(op_code, Modifier::B, reg_a, mode_a)),
-        }
+        Ok(TokenizedLine::Single(
+            op_code,
+            modifier.unwrap_or(Modifier::B),
+            reg_a,
+            mode_a,
+        ))
     // If three words where supplied, we parse the third word and return a TokenizedLine::Double
     } else if words.len() == 3 {
         // getting the second value and addressing mode
         let (mode_b, reg_b) = parse_register(words[2], line_num)?;
         // If no modifier is supplied, we call get_default_modifier()
-        match modifier {
-            Some(m) => Ok(TokenizedLine::Double(
-                op_code, m, reg_a, mode_a, reg_b, mode_b,
-            )),
-            None => Ok(TokenizedLine::Double(
-                op_code,
-                get_default_modifier(op_code, mode_a, mode_b),
-                reg_a,
-                mode_a,
-                reg_b,
-                mode_b,
-            )),
-        }
+        Ok(TokenizedLine::Double(
+            op_code,
+            modifier.unwrap_or_else(|| get_default_modifier(op_code, mode_a, mode_b)),
+            reg_a,
+            mode_a,
+            reg_b,
+            mode_b,
+        ))
     } else {
         // If there are more than three words, something is wrong.
         Err(ParseError::UnexpectedArgument(line_num))

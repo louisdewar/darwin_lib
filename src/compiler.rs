@@ -65,12 +65,7 @@ impl fmt::Display for ParseError<'_> {
 pub fn parse_program(program: &str) -> Result<Vec<Instruction>, ParseError> {
     let mut parsed_program: Vec<Instruction> = Vec::new();
     for (i, line) in program.lines().enumerate() {
-        match parse_line(&line, i + 1) {
-            Ok(v) => {
-                parsed_program.push(v);
-            }
-            Err(e) => return Err(e),
-        }
+        parsed_program.push(parse_line(&line, i+1)?);
     }
     Ok(parsed_program)
 }
@@ -80,11 +75,7 @@ fn parse_line(line: &str, line_num: usize) -> Result<Instruction, ParseError> {
     let (op_code, modifier, reg_a, mode_a, reg_b, mode_b) = match tokenized_line {
         TokenizedLine::Single(op_code, modifier, reg_a, mode_a) => {
             // Check to see if valid op_code for a single parameter
-            if match op_code {
-                OpCode::JMP => true,
-                OpCode::SPL => true,
-                _ => false,
-            } {
+            if op_code == OpCode::JMP || op_code == OpCode::SPL {
                 (op_code, modifier, reg_a, mode_a, 0, AddressMode::Direct)
             } else {
                 // Needed 2 params got 1
