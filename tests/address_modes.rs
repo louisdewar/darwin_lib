@@ -139,7 +139,7 @@ fn decrement_loops() {
             DAT(None, 0, Immediate, 0, Immediate)
             DAT(None, 0, Immediate, 0, Immediate)
         }
-            .as_slice()
+        .as_slice()
     );
 
     assert_eq!(
@@ -176,7 +176,6 @@ fn decrement_loops() {
         vm.get_users_pcs(),
         &[std::collections::VecDeque::from(vec![])]
     );
-
 }
 
 #[test]
@@ -270,4 +269,3 @@ fn pre_decrement_b() {
         &[std::collections::VecDeque::from(vec![2])]
     );
 }
-
