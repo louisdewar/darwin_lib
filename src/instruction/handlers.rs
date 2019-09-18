@@ -33,12 +33,12 @@ pub fn follow_address(
         Direct => relative_address(max, cur_address, reg),
         // Immediate will always return a value
         Immediate => cur_address,
-        IndirectA | PreDecrementIndirectA | PostDecrementIndirectA => {
+        IndirectA | PreDecrementIndirectA | PostIncrementIndirectA => {
             let index = relative_address(max, cur_address, reg);
             let instruction = memory[index];
             relative_address(max, index, instruction.a_reg)
         }
-        IndirectB | PreDecrementIndirectB | PostDecrementIndirectB => {
+        IndirectB | PreDecrementIndirectB | PostIncrementIndirectB => {
             let index = relative_address(max, cur_address, reg);
             let instruction = memory[index];
             relative_address(max, index, instruction.b_reg)

@@ -162,7 +162,7 @@ fn handle_pre_decrement(
     }
 }
 
-fn handle_post_decrement(
+fn handle_post_increment(
     reg: isize,
     mode: AddressMode,
     cur_address: usize,
@@ -173,13 +173,13 @@ fn handle_post_decrement(
     use AddressMode::*;
 
     match mode {
-        PostDecrementIndirectA => {
+        PostIncrementIndirectA => {
             let index = relative_address(max, cur_address, reg);
-            memory[index].a_reg = (memory[index].a_reg - 1 + max as isize) % max as isize;
+            memory[index].a_reg = (memory[index].a_reg + 1) % max as isize;
         }
-        PostDecrementIndirectB => {
+        PostIncrementIndirectB => {
             let index = relative_address(max, cur_address, reg);
-            memory[index].b_reg = (memory[index].b_reg - 1 + max as isize) % max as isize;
+            memory[index].b_reg = (memory[index].b_reg + 1) % max as isize;
         }
         _ => {}
     }
@@ -359,15 +359,15 @@ impl VirtualMachine {
             NOP => {}
         }
 
-        // Handle post-decrement address modes:
-        handle_post_decrement(
+        // Handle post-increment address modes:
+        handle_post_increment(
             instruction.a_reg,
             instruction.a_mode,
             pc,
             memory_len,
             &mut self.memory,
         );
-        handle_post_decrement(
+        handle_post_increment(
             instruction.b_reg,
             instruction.b_mode,
             pc,

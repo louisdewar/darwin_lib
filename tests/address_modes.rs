@@ -46,7 +46,7 @@ fn indirect_a() {
         2
     );
     assert_eq!(
-        follow_address(1, PostDecrementIndirectA, 9, memory.len(), &memory),
+        follow_address(1, PostIncrementIndirectA, 9, memory.len(), &memory),
         2
     );
 
@@ -57,7 +57,7 @@ fn indirect_a() {
         4
     );
     assert_eq!(
-        follow_address(1, PostDecrementIndirectA, 0, memory.len(), &memory),
+        follow_address(1, PostIncrementIndirectA, 0, memory.len(), &memory),
         4
     );
 
@@ -68,7 +68,7 @@ fn indirect_a() {
         3
     );
     assert_eq!(
-        follow_address(0, PostDecrementIndirectA, 3, memory.len(), &memory),
+        follow_address(0, PostIncrementIndirectA, 3, memory.len(), &memory),
         3
     );
 }
@@ -88,7 +88,7 @@ fn indirect_b() {
         4
     );
     assert_eq!(
-        follow_address(1, PostDecrementIndirectB, 9, memory.len(), &memory),
+        follow_address(1, PostIncrementIndirectB, 9, memory.len(), &memory),
         4
     );
 
@@ -99,7 +99,7 @@ fn indirect_b() {
         6
     );
     assert_eq!(
-        follow_address(1, PostDecrementIndirectB, 0, memory.len(), &memory),
+        follow_address(1, PostIncrementIndirectB, 0, memory.len(), &memory),
         6
     );
 
@@ -110,13 +110,14 @@ fn indirect_b() {
         3
     );
     assert_eq!(
-        follow_address(0, PostDecrementIndirectB, 3, memory.len(), &memory),
+        follow_address(0, PostIncrementIndirectB, 3, memory.len(), &memory),
         3
     );
 }
 
 #[test]
-fn pre_decrement_a() {
+fn decrement_loops() {
+    // Testing indirect A
     let looper = create_program! {
         // Skips the jump once the A (of the SEQ) is 0.
         SEQ(AB, 4, Immediate, 0, Immediate)
@@ -124,31 +125,29 @@ fn pre_decrement_a() {
         JMP(None, -1, Direct, -1, PreDecrementIndirectA)
     };
 
-    let mut vm = VirtualMachine::new_simple(4, looper);
+    let mut vm = VirtualMachine::new_simple(20, looper);
 
     for _ in 0..10 {
         vm.cycle();
     }
 
     assert_eq!(
-        &vm.get_memory(),
-        &(create_program! {
+        &vm.get_memory()[0..4],
+        create_program! {
             SEQ(AB, 0, Immediate, 0, Immediate)
             JMP(None, -1, Direct, -1, PreDecrementIndirectA)
             DAT(None, 0, Immediate, 0, Immediate)
             DAT(None, 0, Immediate, 0, Immediate)
-        })
-        .as_slice()
+        }
+            .as_slice()
     );
 
     assert_eq!(
         vm.get_users_pcs(),
         &[std::collections::VecDeque::from(vec![])]
     );
-}
 
-#[test]
-fn pre_decrement_b() {
+    // Testing indirect B
     let looper = create_program! {
         // Skips the jump once the B (of the SEQ) is 0.
         SEQ(AB, 0, Immediate, 4, Immediate)
@@ -156,89 +155,119 @@ fn pre_decrement_b() {
         JMP(None, -1, Direct, -1, PreDecrementIndirectB)
     };
 
-    let mut vm = VirtualMachine::new_simple(4, looper);
+    let mut vm = VirtualMachine::new_simple(20, looper);
 
     for _ in 0..10 {
         vm.cycle();
     }
 
     assert_eq!(
-        &vm.get_memory(),
-        &(create_program! {
+        &vm.get_memory()[0..4],
+        create_program! {
             SEQ(AB, 0, Immediate, 0, Immediate)
             JMP(None, -1, Direct, -1, PreDecrementIndirectB)
             DAT(None, 0, Immediate, 0, Immediate)
             DAT(None, 0, Immediate, 0, Immediate)
-        })
+        }
         .as_slice()
     );
 
     assert_eq!(
         vm.get_users_pcs(),
         &[std::collections::VecDeque::from(vec![])]
+    );
+
+}
+
+#[test]
+fn post_increment_a() {
+    let program = create_program! {
+        JMP(None, 1, IndirectA, 1, PostIncrementIndirectA)
+        DAT(None, 0, Immediate, 0, Immediate)
+    };
+
+    let mut vm = VirtualMachine::new_simple(20, program);
+
+    vm.cycle();
+
+    // DAT command should now be +1 in the A field
+    assert_eq!(
+        vm.get_memory()[1],
+        cmd! { DAT(None, 1, Immediate, 0, Immediate) }
+    );
+    // The increment should not have affected the location of the JMP since it's post
+    assert_eq!(
+        vm.get_users_pcs(),
+        &[std::collections::VecDeque::from(vec![1])]
     );
 }
 
 #[test]
-fn post_decrement_a() {
-    let looper = create_program! {
-        // Skips the jump once the A (of the SEQ) is 0.
-        SEQ(AB, 4, Immediate, 0, Immediate)
-        // Decrement the A of the SEQ by 1 each time
-        JMP(None, -1, Direct, -1, PostDecrementIndirectA)
+fn post_increment_b() {
+    let program = create_program! {
+        JMP(None, 1, IndirectB, 1, PostIncrementIndirectB)
+        DAT(None, 0, Immediate, 0, Immediate)
     };
 
-    let mut vm = VirtualMachine::new_simple(4, looper);
+    let mut vm = VirtualMachine::new_simple(20, program);
 
-    for _ in 0..10 {
-        vm.cycle();
-    }
+    vm.cycle();
 
+    // DAT command should now be +1 in the B field
     assert_eq!(
-        &vm.get_memory(),
-        &(create_program! {
-            SEQ(AB, 0, Immediate, 0, Immediate)
-            JMP(None, -1, Direct, -1, PostDecrementIndirectA)
-            DAT(None, 0, Immediate, 0, Immediate)
-            DAT(None, 0, Immediate, 0, Immediate)
-        })
-        .as_slice()
+        vm.get_memory()[1],
+        cmd! { DAT(None, 0, Immediate, 1, Immediate) }
     );
-
+    // The increment should not have affected the location of the JMP since it's post
     assert_eq!(
         vm.get_users_pcs(),
-        &[std::collections::VecDeque::from(vec![])]
+        &[std::collections::VecDeque::from(vec![1])]
     );
 }
 
 #[test]
-fn post_decrement_b() {
-    let looper = create_program! {
-        // Skips the jump once the B (of the SEQ) is 0.
-        SEQ(AB, 0, Immediate, 4, Immediate)
-        // Decrement the B of the SEQ by 1 each time
-        JMP(None, -1, Direct, -1, PostDecrementIndirectB)
+fn pre_decrement_a() {
+    let program = create_program! {
+        JMP(None, 1, IndirectA, 1, PreDecrementIndirectA)
+        DAT(None, 2, Immediate, 2, Immediate)
     };
 
-    let mut vm = VirtualMachine::new_simple(4, looper);
+    let mut vm = VirtualMachine::new_simple(20, program);
 
-    for _ in 0..10 {
-        vm.cycle();
-    }
+    vm.cycle();
 
+    // DAT command should now be +1 in the A field
     assert_eq!(
-        &vm.get_memory(),
-        &(create_program! {
-            SEQ(AB, 0, Immediate, 0, Immediate)
-            JMP(None, -1, Direct, -1, PostDecrementIndirectB)
-            DAT(None, 0, Immediate, 0, Immediate)
-            DAT(None, 0, Immediate, 0, Immediate)
-        })
-        .as_slice()
+        vm.get_memory()[1],
+        cmd! { DAT(None, 1, Immediate, 2, Immediate) }
     );
-
+    // The increment should have decrease 1 from the expected JMP address
     assert_eq!(
         vm.get_users_pcs(),
-        &[std::collections::VecDeque::from(vec![])]
+        &[std::collections::VecDeque::from(vec![2])]
     );
 }
+
+#[test]
+fn pre_decrement_b() {
+    let program = create_program! {
+        JMP(None, 1, IndirectB, 1, PreDecrementIndirectB)
+        DAT(None, 2, Immediate, 2, Immediate)
+    };
+
+    let mut vm = VirtualMachine::new_simple(20, program);
+
+    vm.cycle();
+
+    // DAT command should now be +1 in the B field
+    assert_eq!(
+        vm.get_memory()[1],
+        cmd! { DAT(None, 2, Immediate, 1, Immediate) }
+    );
+    // The increment should have decrease 1 from the expected JMP address
+    assert_eq!(
+        vm.get_users_pcs(),
+        &[std::collections::VecDeque::from(vec![2])]
+    );
+}
+

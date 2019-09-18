@@ -19,10 +19,10 @@ pub enum AddressMode {
     PreDecrementIndirectA,
     /// Behaves like IndirectB, but it decrements the number it points to by 1 before running the instruction
     PreDecrementIndirectB,
-    /// Behaves like IndirectA, but it decrements the number it points to by 1 after running the instruction
-    PostDecrementIndirectA,
-    /// Behaves like IndirectB, but it decrements the number it points to by 1 after running the instruction
-    PostDecrementIndirectB,
+    /// Behaves like IndirectA, but it increments the number it points to by 1 after running the instruction
+    PostIncrementIndirectA,
+    /// Behaves like IndirectB, but it increments the number it points to by 1 after running the instruction
+    PostIncrementIndirectB,
 }
 
 impl std::fmt::Display for AddressMode {
@@ -35,8 +35,8 @@ impl std::fmt::Display for AddressMode {
             IndirectB => write!(f, "@"),
             PreDecrementIndirectA => write!(f, "{{"),
             PreDecrementIndirectB => write!(f, "<"),
-            PostDecrementIndirectA => write!(f, "}}"),
-            PostDecrementIndirectB => write!(f, ">"),
+            PostIncrementIndirectA => write!(f, "}}"),
+            PostIncrementIndirectB => write!(f, ">"),
         }
     }
 }
