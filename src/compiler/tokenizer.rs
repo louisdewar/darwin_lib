@@ -6,103 +6,68 @@ pub enum TokenizedLine {
 }
 
 pub fn tokenize_line(line: &str, line_num: usize) -> Result<TokenizedLine, ParseError> {
-    //let mut tokens: Vec<Token> = Vec::new();
     let words: Vec<&str> = line.split_whitespace().collect();
     if words.len() < 2 {
         return Err(ParseError::NotEnoughArgumets(line_num));
     }
     // getting opcode and modifier
     let first_word: Vec<&str> = words[0].split('.').collect();
-    let op_code = match get_opcode(first_word[0]) {
-        Ok(v) => v,
-        Err(_) => return Err(ParseError::UnknownOpCode((line_num, &first_word[0]))),
-    };
+    let op_code = get_opcode(first_word[0], line_num)?;
     let modifier = if first_word.len() == 2 {
-        match get_modifier(first_word[1]) {
-            Ok(v) => Some(v),
-            Err(_) => return Err(ParseError::UnknownModifier((line_num, &first_word[1]))),
-        }
+        Some(get_modifier(first_word[1], line_num)?)
     } else {
         None
     };
-    // getting first value and addressing mode
-    let value_1;
-    let addressing_mode_1;
-    match get_addressing_mode(&words[1][..1]) {
-        Ok(v) => {
-            addressing_mode_1 = v;
-            value_1 = match words[1][1..].parse::<isize>() {
-                Ok(n) => n,
-                Err(_) => return Err(ParseError::UnknownValue((line_num, &words[1][1..]))),
-            };
-        }
-        Err(_) => {
-            addressing_mode_1 = AddressMode::Direct;
-            value_1 = match words[1].parse::<isize>() {
-                Ok(n) => n,
-                Err(_) => return Err(ParseError::UnknownValue((line_num, &words[1]))),
-            };
-        }
-    }
+    // Getting first value and addressing mode:
+    let (mode_a, reg_a) = parse_register(words[1], line_num)?;
+    // If only two words supplied, we return a TokenizedLine::Single
     if words.len() == 2 {
+        // If no modifier is supplied, Singles always default to .B
         match modifier {
-            Some(m) => Ok(TokenizedLine::Single(
-                op_code,
-                m,
-                value_1,
-                addressing_mode_1,
-            )),
-            None => Ok(TokenizedLine::Single(
-                op_code,
-                Modifier::B,
-                value_1,
-                addressing_mode_1,
-            )),
+            Some(m) => Ok(TokenizedLine::Single(op_code, m, reg_a, mode_a)),
+            None => Ok(TokenizedLine::Single(op_code, Modifier::B, reg_a, mode_a)),
         }
+    // If three words where supplied, we parse the third word and return a TokenizedLine::Double
     } else if words.len() == 3 {
         // getting the second value and addressing mode
-        let value_2;
-        let addressing_mode_2;
-        match get_addressing_mode(&words[2][..1]) {
-            Ok(v) => {
-                addressing_mode_2 = v;
-                value_2 = match words[2][1..].parse::<isize>() {
-                    Ok(n) => n,
-                    Err(_) => return Err(ParseError::UnknownValue((line_num, &words[2][1..]))),
-                };
-            }
-            Err(_) => {
-                addressing_mode_2 = AddressMode::Direct;
-                value_2 = match words[2].parse::<isize>() {
-                    Ok(n) => n,
-                    Err(_) => return Err(ParseError::UnknownValue((line_num, &words[2]))),
-                };
-            }
-        }
+        let (mode_b, reg_b) = parse_register(words[2], line_num)?;
+        // If no modifier is supplied, we call get_default_modifier()
         match modifier {
             Some(m) => Ok(TokenizedLine::Double(
-                op_code,
-                m,
-                value_1,
-                addressing_mode_1,
-                value_2,
-                addressing_mode_2,
+                op_code, m, reg_a, mode_a, reg_b, mode_b,
             )),
             None => Ok(TokenizedLine::Double(
                 op_code,
-                get_default_modifier(op_code, addressing_mode_1, addressing_mode_2),
-                value_1,
-                addressing_mode_1,
-                value_2,
-                addressing_mode_2,
+                get_default_modifier(op_code, mode_a, mode_b),
+                reg_a,
+                mode_a,
+                reg_b,
+                mode_b,
             )),
         }
     } else {
+        // If there are more than three words, something is wrong.
         Err(ParseError::UnexpectedArgument(line_num))
     }
 }
 
-fn get_opcode(opcode: &str) -> Result<OpCode, ()> {
+fn parse_register(word: &str, line_num: usize) -> Result<(AddressMode, isize), ParseError> {
+    match get_addressing_mode(&word[..1]) {
+        Ok(v) => Ok((
+            v,
+            word[1..]
+                .parse::<isize>()
+                .map_err(|_| ParseError::UnknownValue((line_num, &word[1..])))?,
+        )),
+        Err(_) => Ok((
+            AddressMode::Direct,
+            word.parse::<isize>()
+                .map_err(|_| ParseError::UnknownValue((line_num, word)))?,
+        )),
+    }
+}
+
+fn get_opcode(opcode: &str, line_num: usize) -> Result<OpCode, ParseError> {
     match opcode {
         "MOV" => Ok(OpCode::MOV),
         "ADD" => Ok(OpCode::ADD),
@@ -121,11 +86,11 @@ fn get_opcode(opcode: &str) -> Result<OpCode, ()> {
         "SNE" => Ok(OpCode::SNE),
         "SLT" => Ok(OpCode::SLT),
         // Anything else is an error:
-        _ => Err(()),
+        _ => Err(ParseError::UnknownOpCode((line_num, opcode))),
     }
 }
 
-fn get_modifier(modifier: &str) -> Result<Modifier, ()> {
+fn get_modifier(modifier: &str, line_num: usize) -> Result<Modifier, ParseError> {
     match modifier {
         "A" => Ok(Modifier::A),
         "B" => Ok(Modifier::B),
@@ -135,7 +100,7 @@ fn get_modifier(modifier: &str) -> Result<Modifier, ()> {
         "F" => Ok(Modifier::F),
         "I" => Ok(Modifier::I),
         // Anything else is an error:
-        _ => Err(()),
+        _ => Err(ParseError::UnknownModifier((line_num, modifier))),
     }
 }
 

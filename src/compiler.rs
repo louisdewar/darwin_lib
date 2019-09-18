@@ -6,7 +6,7 @@ use tokenizer::{tokenize_line, TokenizedLine};
 use std::fmt;
 
 /// An enum for the different types of error that could occur while compiling a program.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ParseError<'a> {
     /// When an instruction uses a modifier that is not compatable with the opcode.
     /// Holds the line num where the error was found.
@@ -76,10 +76,7 @@ pub fn parse_program(program: &str) -> Result<Vec<Instruction>, ParseError> {
 }
 
 fn parse_line(line: &str, line_num: usize) -> Result<Instruction, ParseError> {
-    let tokenized_line = match tokenize_line(line, line_num) {
-        Ok(t) => t,
-        Err(e) => return Err(e),
-    };
+    let tokenized_line = tokenize_line(line, line_num)?;
     let (op_code, modifier, reg_a, mode_a, reg_b, mode_b) = match tokenized_line {
         TokenizedLine::Single(op_code, modifier, reg_a, mode_a) => {
             // Check to see if valid op_code for a single parameter
