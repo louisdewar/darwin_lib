@@ -1,7 +1,10 @@
 use crate::{AddressMode, Modifier, OpCode, ParseError};
 
+/// Used by the compiler to represent a parsed instruction
 pub enum TokenizedLine {
+    /// Used for commands that only use a single register, eg JMP.
     Single(OpCode, Modifier, isize, AddressMode),
+    /// Used for commands that use both registers.
     Double(OpCode, Modifier, isize, AddressMode, isize, AddressMode),
 }
 
@@ -68,48 +71,51 @@ fn parse_register(word: &str, line_num: usize) -> Result<(AddressMode, isize), P
 }
 
 fn get_opcode(opcode: &str, line_num: usize) -> Result<OpCode, ParseError> {
+    use OpCode::*;
     match opcode {
-        "MOV" => Ok(OpCode::MOV),
-        "ADD" => Ok(OpCode::ADD),
-        "SUB" => Ok(OpCode::SUB),
-        "MUL" => Ok(OpCode::MUL),
-        "DIV" => Ok(OpCode::DIV),
-        "MOD" => Ok(OpCode::MOD),
-        "DAT" => Ok(OpCode::DAT),
-        "JMP" => Ok(OpCode::JMP),
-        "SPL" => Ok(OpCode::SPL),
-        "JMZ" => Ok(OpCode::JMZ),
-        "JMN" => Ok(OpCode::JMN),
-        "NOP" => Ok(OpCode::NOP),
-        "DJN" => Ok(OpCode::DJN),
-        "SEQ" => Ok(OpCode::SEQ),
-        "SNE" => Ok(OpCode::SNE),
-        "SLT" => Ok(OpCode::SLT),
+        "MOV" => Ok(MOV),
+        "ADD" => Ok(ADD),
+        "SUB" => Ok(SUB),
+        "MUL" => Ok(MUL),
+        "DIV" => Ok(DIV),
+        "MOD" => Ok(MOD),
+        "DAT" => Ok(DAT),
+        "JMP" => Ok(JMP),
+        "SPL" => Ok(SPL),
+        "JMZ" => Ok(JMZ),
+        "JMN" => Ok(JMN),
+        "NOP" => Ok(NOP),
+        "DJN" => Ok(DJN),
+        "SEQ" => Ok(SEQ),
+        "SNE" => Ok(SNE),
+        "SLT" => Ok(SLT),
         // Anything else is an error:
         _ => Err(ParseError::UnknownOpCode((line_num, opcode))),
     }
 }
 
 fn get_modifier(modifier: &str, line_num: usize) -> Result<Modifier, ParseError> {
+    use Modifier::*;
     match modifier {
-        "A" => Ok(Modifier::A),
-        "B" => Ok(Modifier::B),
-        "AB" => Ok(Modifier::AB),
-        "BA" => Ok(Modifier::BA),
-        "X" => Ok(Modifier::X),
-        "F" => Ok(Modifier::F),
-        "I" => Ok(Modifier::I),
+        "A" => Ok(A),
+        "B" => Ok(B),
+        "AB" => Ok(AB),
+        "BA" => Ok(BA),
+        "X" => Ok(X),
+        "F" => Ok(F),
+        "I" => Ok(I),
         // Anything else is an error:
         _ => Err(ParseError::UnknownModifier((line_num, modifier))),
     }
 }
 
 fn get_addressing_mode(addressing_mode: &str) -> Result<AddressMode, ()> {
+    use AddressMode::*;
     match addressing_mode {
-        "$" => Ok(AddressMode::Direct),
-        "#" => Ok(AddressMode::Immediate),
-        "*" => Ok(AddressMode::IndirectA),
-        "@" => Ok(AddressMode::IndirectB),
+        "$" => Ok(Direct),
+        "#" => Ok(Immediate),
+        "*" => Ok(IndirectA),
+        "@" => Ok(IndirectB),
         // No addressing mode supplied:
         _ => Err(()),
     }
