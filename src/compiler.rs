@@ -65,7 +65,7 @@ impl fmt::Display for ParseError<'_> {
 pub fn parse_program(program: &str) -> Result<Vec<Instruction>, ParseError> {
     let mut parsed_program: Vec<Instruction> = Vec::new();
     for (i, line) in program.lines().enumerate() {
-        parsed_program.push(parse_line(&line, i+1)?);
+        parsed_program.push(parse_line(&line, i + 1)?);
     }
     Ok(parsed_program)
 }
