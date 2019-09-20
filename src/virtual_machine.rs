@@ -4,8 +4,8 @@ use std::collections::VecDeque;
 
 #[derive(Clone, Debug)]
 pub struct MatchSettings {
-    /// The minimum seperation between warriors when they are loaded
-    pub min_seperation: usize,
+    /// The minimum separation between warriors when they are loaded
+    pub min_separation: usize,
     /// The maximum number of processes for an individual user
     pub max_processes: usize,
     /// The size of the core
@@ -15,7 +15,7 @@ pub struct MatchSettings {
 impl Default for MatchSettings {
     fn default() -> MatchSettings {
         MatchSettings {
-            min_seperation: 100,
+            min_separation: 100,
             max_processes: 8000,
             core_size: 8000,
         }
@@ -37,7 +37,7 @@ pub struct VirtualMachine {
 fn generate_random_insertion_points(
     size: usize,
     programs: &[Vec<Instruction>],
-    min_seperation: usize,
+    min_separation: usize,
 ) -> Vec<usize> {
     use rand::Rng;
     let mut rng = rand::thread_rng();
@@ -48,13 +48,13 @@ fn generate_random_insertion_points(
         len: usize,
     }
 
-    // The First program is inserted `min_seperation` instructions into memory
-    let mut indices = vec![min_seperation];
+    // The First program is inserted `min_separation` instructions into memory
+    let mut indices = vec![min_separation];
 
     // A list of blocks of memory that are free
     let mut free_blocks = {
         // The total space occupied by the first program plus padding
-        let first_program_total_len = min_seperation * 2 + programs[0].len();
+        let first_program_total_len = min_separation * 2 + programs[0].len();
 
         // Therefore the start of the free block of memory is equivalent to the total length of the first program
         // and the length is the core size - total program length
@@ -96,17 +96,17 @@ fn generate_random_insertion_points(
                 // Program is within this block
                 indices.push(block.start + n);
 
-                // The block before this program now has length n - min_seperation or 0 if there isn't enough room
+                // The block before this program now has length n - min_separation or 0 if there isn't enough room
                 free_blocks.insert(
                     i,
                     Block {
                         start: free_blocks[i].start,
-                        len: n.saturating_sub(min_seperation),
+                        len: n.saturating_sub(min_separation),
                     },
                 );
 
                 // The distance from the previous start to the new start
-                let new_start_distance = n + (2 * min_seperation) + program.len();
+                let new_start_distance = n + (2 * min_separation) + program.len();
                 // If there is enough room for another free_block after this new program and its padding
                 if free_blocks[i + 1].len > new_start_distance {
                     free_blocks[i + 1].start = (free_blocks[i].start + new_start_distance) % size;
@@ -139,6 +139,52 @@ fn generate_empty_memory(size: usize) -> Vec<Instruction> {
         .collect()
 }
 
+fn handle_pre_decrement(
+    reg: isize,
+    mode: AddressMode,
+    cur_address: usize,
+    max: usize,
+    memory: &mut [Instruction],
+) {
+    use handlers::relative_address;
+    use AddressMode::*;
+
+    match mode {
+        PreDecrementIndirectA => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].a_reg = (memory[index].a_reg - 1 + max as isize) % max as isize;
+        }
+        PreDecrementIndirectB => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].b_reg = (memory[index].b_reg - 1 + max as isize) % max as isize;
+        }
+        _ => {}
+    }
+}
+
+fn handle_post_increment(
+    reg: isize,
+    mode: AddressMode,
+    cur_address: usize,
+    max: usize,
+    memory: &mut [Instruction],
+) {
+    use handlers::relative_address;
+    use AddressMode::*;
+
+    match mode {
+        PostIncrementIndirectA => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].a_reg = (memory[index].a_reg + 1) % max as isize;
+        }
+        PostIncrementIndirectB => {
+            let index = relative_address(max, cur_address, reg);
+            memory[index].b_reg = (memory[index].b_reg + 1) % max as isize;
+        }
+        _ => {}
+    }
+}
+
 impl VirtualMachine {
     /// Creates a new VM with specified programs and match settings
     /// This inserts programs randomly into memory
@@ -151,7 +197,7 @@ impl VirtualMachine {
         let indices = generate_random_insertion_points(
             match_settings.core_size,
             &programs,
-            match_settings.min_seperation,
+            match_settings.min_separation,
         );
 
         for (start_index, program) in indices.iter().zip(programs.iter()) {
@@ -223,6 +269,22 @@ impl VirtualMachine {
         // Advance the PC by 1 and add it to the back of the queue (for this user)
         // For the commands that don't want to have the PC advanced by 1, they must override this
         process_queue.push_back((pc + 1) % memory_len);
+
+        // Handle pre-decrement address modes:
+        handle_pre_decrement(
+            instruction.a_reg,
+            instruction.a_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
+        handle_pre_decrement(
+            instruction.b_reg,
+            instruction.b_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
 
         use OpCode::*;
 
@@ -296,6 +358,22 @@ impl VirtualMachine {
             // Does nothing
             NOP => {}
         }
+
+        // Handle post-increment address modes:
+        handle_post_increment(
+            instruction.a_reg,
+            instruction.a_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
+        handle_post_increment(
+            instruction.b_reg,
+            instruction.b_mode,
+            pc,
+            memory_len,
+            &mut self.memory,
+        );
 
         // Advance the user counter
         self.cur_user = (self.cur_user + 1) % self.users_pcs.len();

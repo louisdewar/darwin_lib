@@ -6,7 +6,7 @@ fn main() {
     let mut vm = VirtualMachine::new_battle(
         &[program],
         &MatchSettings {
-            min_seperation: 10,
+            min_separation: 10,
             core_size: 20,
             ..Default::default()
         },
