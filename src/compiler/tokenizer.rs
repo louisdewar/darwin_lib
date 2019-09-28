@@ -113,6 +113,10 @@ fn get_addressing_mode(addressing_mode: &str) -> Result<AddressMode, ()> {
         "#" => Ok(Immediate),
         "*" => Ok(IndirectA),
         "@" => Ok(IndirectB),
+        "{" => Ok(PreDecrementIndirectA),
+        "<" => Ok(PreDecrementIndirectB),
+        "}" => Ok(PostIncrementIndirectA),
+        ">" => Ok(PostIncrementIndirectB),
         // No addressing mode supplied:
         _ => Err(()),
     }
