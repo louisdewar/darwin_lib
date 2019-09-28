@@ -30,13 +30,13 @@ fn every_opcode() {
     );
     // MUL
     assert_eq!(
-        parse_program("MUL.F 1 2").unwrap(),
-        create_program! { MUL(F, 1, Direct, 2, Direct) },
+        parse_program("MUL.F {1 <2").unwrap(),
+        create_program! { MUL(F, 1, PreDecrementIndirectA, 2, PreDecrementIndirectB) },
     );
     // DIV
     assert_eq!(
-        parse_program("DIV.X 1 2").unwrap(),
-        create_program! { DIV(X, 1, Direct, 2, Direct) },
+        parse_program("DIV.X }1 >2").unwrap(),
+        create_program! { DIV(X, 1, PostIncrementIndirectA, 2, PostIncrementIndirectB) },
     );
     // MOD
     assert_eq!(
